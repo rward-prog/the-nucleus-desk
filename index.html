@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cell Central: The Nucleus Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wall:#2d2a33; --wall2:#232027; --desk:#5b4636; --desk2:#463529;
+  --paper:#e4d8b4; --paper2:#d3c497; --ink:#2b2622; --ink2:#5e5040;
+  --red:#a8352b; --green:#47703c; --brass:#c99a3f; --text:#efe5cc; --muted:#b5a68a;
+  --line:#110e12; --shadow:#000;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --wall:#211e26; --wall2:#19171d; --desk:#4e3c2f; --desk2:#3b2d23; --text:#f1e8d0; --muted:#a99a80; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--wall);
+  background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 2px, transparent 2px 6px);
+  color:var(--text); font-family:'VT323', monospace; font-size:22px; line-height:1.2;
+}
+h1,h2,h3,.ps{font-family:'Press Start 2P', monospace; font-weight:normal}
+button{font:inherit}
+img.px{image-rendering:pixelated}
+.btn{
+  font-family:'Press Start 2P', monospace; font-size:12px; line-height:1.4;
+  background:var(--brass); color:var(--ink); border:4px solid var(--line);
+  box-shadow:4px 4px 0 var(--line); padding:12px 16px; cursor:pointer;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translate(2px,2px); box-shadow:2px 2px 0 var(--line)}
+.btn.big{font-size:14px; padding:14px 22px}
+.btn.quiet{background:var(--paper2)}
+.btn.danger{background:var(--red);color:#fff}
+button:focus-visible, input:focus-visible{outline:3px dashed var(--brass); outline-offset:3px}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:20px}
+
+/* title */
+.center-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px}
+.sign{background:var(--desk);border:6px solid var(--line);box-shadow:8px 8px 0 var(--shadow);padding:28px;max-width:660px;width:100%;text-align:center}
+.sign-top{font-family:'Press Start 2P';font-size:12px;color:var(--brass);margin-bottom:12px}
+.sign h1{font-size:26px;color:var(--paper);text-shadow:4px 4px 0 var(--shadow);line-height:1.5;margin:0 0 14px}
+.sign .lead{font-size:24px;max-width:52ch;margin:0 auto 16px}
+.hero-icons{display:flex;justify-content:center;gap:10px;margin:8px 0 18px}
+.hero-icons img{width:48px;height:48px;image-rendering:pixelated;background:var(--paper2);border:3px solid var(--line);padding:2px}
+.namelab{display:block;font-family:'Press Start 2P';font-size:10px;margin-bottom:8px;color:var(--paper)}
+.sign input{font-family:'VT323';font-size:28px;padding:8px 10px;width:100%;max-width:360px;background:var(--paper);color:var(--ink);border:4px solid var(--line);margin-bottom:16px;text-align:center}
+.sound-row{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.tbtn{font-family:'Press Start 2P';font-size:9px;background:var(--wall2);color:var(--text);border:3px solid var(--line);padding:8px 10px;cursor:pointer;box-shadow:3px 3px 0 var(--shadow)}
+.tbtn.on{background:var(--green);color:#fff}
+.credit{color:var(--muted);font-size:20px}
+
+/* map */
+.map{min-height:100vh;padding:16px 20px;display:flex;flex-direction:column;gap:14px;max-width:1300px;margin:0 auto}
+.maphead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.maphead h2{font-size:16px;margin:0;color:var(--paper)}
+.maphead p{margin:6px 0 0;color:var(--muted)}
+.mapgrid{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:start}
+.colhead{font-family:'Press Start 2P';font-size:11px;color:var(--brass);margin:0 0 10px}
+.card{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--paper);color:var(--ink);border:4px solid var(--line);box-shadow:5px 5px 0 var(--shadow);padding:12px;margin-bottom:12px;cursor:pointer}
+.card img{width:52px;height:52px;image-rendering:pixelated;flex:none}
+.card .cname{font-family:'Press Start 2P';font-size:11px;line-height:1.5}
+.card .cdesc{font-size:20px;color:var(--ink2)}
+.card .cstat{margin-left:auto;font-family:'Press Start 2P';font-size:10px;padding:6px;border:3px solid var(--line);flex:none}
+.card.open .cstat{background:var(--brass)}
+.card.done .cstat{background:var(--green);color:#fff}
+.card.locked,.card.soon{background:var(--paper2);opacity:.75;cursor:not-allowed}
+.card.locked .cstat,.card.soon .cstat{background:#777;color:#eee}
+.bodyzone{background:var(--desk);border:6px solid var(--line);box-shadow:6px 6px 0 var(--shadow);padding:16px 10px}
+.bodyzone .colhead{text-align:center}
+.bodywrap{position:relative;width:220px;margin:0 140px}
+.bodywrap img{width:220px;display:block;image-rendering:pixelated}
+.node{position:absolute;transform:translate(-50%,-50%);background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:center}
+.node .dot{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:4px solid var(--line);font-family:'Press Start 2P';font-size:9px;background:#555;color:#ddd;box-shadow:3px 3px 0 var(--shadow)}
+.node.open .dot{background:var(--brass);color:var(--ink);animation:pulse 1.2s steps(2) infinite}
+.node.done .dot{background:var(--green);color:#fff}
+.node.secret .dot{background:#2b2830;color:var(--brass)}
+.node .nl{position:absolute;white-space:nowrap;font-family:'Press Start 2P';font-size:8px;line-height:1.6;background:var(--wall2);border:3px solid var(--line);padding:4px 6px;color:var(--text);text-align:left}
+.node.L .nl{right:38px;text-align:right}
+.node.R .nl{left:38px}
+.nl small{color:var(--muted);font-size:7px}
+.skipbtn{display:block;margin:-2px 0 12px auto;font-size:10px;padding:8px 12px}
+.hs{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;max-width:520px}
+.hs li{display:grid;grid-template-columns:44px 1fr 34px 70px;gap:8px;align-items:center;background:#efe6c8;border:3px solid var(--ink2);padding:4px 8px;font-size:21px}
+.hs li.me{background:var(--brass);border-color:var(--line)}
+.hrank,.hgrade,.hscore{font-family:'Press Start 2P';font-size:10px}
+.hscore{text-align:right}
+.hname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.newhs{font-family:'Press Start 2P';font-size:12px;color:var(--green);margin:6px 0}
+.mapmsg{min-height:30px;text-align:center;color:var(--paper);font-size:22px}
+.mapfoot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:19px}
+
+/* briefing */
+.brief{padding:20px;display:flex;justify-content:center}
+.paper{background:var(--paper);color:var(--ink);border:4px solid var(--line);box-shadow:6px 6px 0 var(--shadow);padding:20px 24px}
+.paper.wide{max-width:1040px;width:100%}
+.paper-head{display:flex;justify-content:space-between;font-family:'Press Start 2P';font-size:10px;border-bottom:3px dashed var(--ink2);padding-bottom:10px;color:var(--ink2);gap:10px;flex-wrap:wrap}
+.paper h2{font-size:20px;margin:16px 0 10px}
+.paper h3{font-size:12px;margin:18px 0 10px}
+.role{font-size:25px;max-width:70ch;margin:0 0 12px}
+.rules{background:var(--paper2);border:3px solid var(--ink2);padding:10px 14px;font-size:22px}
+.rules p{margin:4px 0}
+.guide{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+.gcard{display:flex;gap:10px;background:#efe6c8;border:3px solid var(--ink2);padding:8px;align-items:flex-start}
+.gcard img{width:44px;height:44px;image-rendering:pixelated;flex:none}
+.gname{font-family:'Press Start 2P';font-size:10px;line-height:1.5;margin-bottom:4px}
+.gjob{font-size:21px}
+.gtip{font-size:20px;color:var(--ink2);margin-top:4px}
+.row{display:flex;justify-content:space-between;gap:12px;margin-top:18px;flex-wrap:wrap}
+
+/* desk */
+.desk{height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;background:var(--wall2);border-bottom:4px solid var(--line);flex-wrap:wrap}
+.tb-left,.tb-mid,.tb-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tb-cell{font-family:'Press Start 2P';font-size:12px;color:var(--paper)}
+.modetag{font-family:'Press Start 2P';font-size:8px;padding:4px 6px;border:3px solid var(--line)}
+.modetag.gentle{background:var(--green);color:#fff}
+.modetag.penalty{background:var(--red);color:#fff}
+.tb-mid span{font-family:'Press Start 2P';font-size:10px}
+#streak{color:var(--brass)}
+.floor{display:grid;grid-template-columns:190px 1fr 210px;gap:12px;padding:12px;min-height:0;
+  background:var(--desk);
+  background-image:repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 3px, transparent 3px 22px), repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 9px)}
+.inbox,.side{min-height:0}
+.inbox h3,.panel h3{font-size:10px;color:var(--brass);margin:0 0 8px}
+.inbox{background:rgba(0,0,0,.18);border:4px solid var(--line);padding:10px;display:flex;flex-direction:column}
+.pile{position:relative;flex:1;min-height:200px}
+.sheet{position:absolute;left:14px;width:130px;height:50px;background:var(--paper);border:3px solid var(--line);box-shadow:2px 2px 0 var(--shadow)}
+.sheet::after{content:"";position:absolute;left:10px;right:10px;top:12px;height:12px;border-top:3px solid var(--paper2);border-bottom:3px solid var(--paper2)}
+.sheet.em{background:#e7a89c}
+.limit{position:absolute;left:0;right:0;border-top:3px dashed var(--red)}
+.limit span{font-family:'Press Start 2P';font-size:7px;color:#ffb3a8;background:var(--line);position:relative;top:-9px;left:4px;padding:2px 4px}
+.pilecount{font-family:'Press Start 2P';font-size:10px;text-align:center;margin-top:8px}
+.pilecount.over{color:#ff8f80;animation:blink .6s steps(2) infinite}
+.center{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
+.memoSlot{width:100%;display:flex;justify-content:center;position:relative;z-index:2}
+.under{position:absolute;inset:0;pointer-events:none;z-index:1}
+.usheet{position:absolute;left:50%;top:50%;width:min(560px,92%);height:300px;background:var(--paper2);border:4px solid var(--line);box-shadow:4px 4px 0 rgba(0,0,0,.45);padding:10px 14px}
+.usheet::after{content:"";position:absolute;left:14px;right:40%;top:44px;height:40px;border-top:4px solid rgba(94,80,64,.35);border-bottom:4px solid rgba(94,80,64,.35)}
+.usheet.em{background:#e2a597}
+.uhead{font-family:'Press Start 2P';font-size:8px;color:var(--ink2)}
+.waiting{font-family:'Press Start 2P';font-size:12px;color:var(--paper);opacity:.75;text-align:center;line-height:1.8}
+.memo{width:min(580px,100%);background:var(--paper);color:var(--ink);border:4px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.55);padding:14px 20px 16px;position:relative}
+.memo.in{animation:slideIn .35s steps(6)}
+.memo.out{transition:transform .3s steps(5),opacity .3s;transform:translateX(130%) rotate(10deg);opacity:0}
+.memo.shake{animation:shake .3s steps(6)}
+.memo.emergency{background:#f0d2c6;box-shadow:0 0 0 4px var(--red),6px 6px 0 rgba(0,0,0,.55)}
+.memo-head{display:flex;justify-content:space-between;font-family:'Press Start 2P';font-size:9px;border-bottom:3px dashed var(--ink2);padding-bottom:8px;margin-bottom:8px;color:var(--ink2);gap:8px}
+.alarm{background:var(--red);color:#fff;padding:2px 6px;animation:blink .6s steps(2) infinite}
+.mline{font-size:22px}
+.mline b{font-family:'Press Start 2P';font-size:9px;margin-right:6px}
+.mbody{font-size:28px;line-height:1.12;margin:12px 0}
+.tbar{height:14px;border:3px solid var(--line);background:#fff;margin:6px 0 10px}
+#tfill{height:100%;background:var(--red);width:100%}
+.route{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.route b{font-family:'Press Start 2P';font-size:9px}
+.slot{display:inline-block;min-width:46px;padding:5px 6px;border:3px dashed var(--ink2);font-family:'Press Start 2P';font-size:8px;text-align:center}
+.slot.filled{border-style:solid;background:var(--green);color:#fff;border-color:var(--line)}
+.slot.next{border-color:var(--ink)}
+.arrow{font-size:20px;color:var(--ink2)}
+.mark{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%) rotate(-12deg) scale(2.2);opacity:0;border:5px solid;padding:8px 14px;font-family:'Press Start 2P';font-size:20px;pointer-events:none;text-align:center;background:rgba(228,216,180,.35)}
+.mark.show{opacity:.92;transform:translate(-50%,-50%) rotate(-12deg) scale(1);transition:transform .15s steps(3),opacity .15s}
+.mark.ok{color:var(--green);border-color:var(--green)}
+.mark.bad{color:var(--red);border-color:var(--red)}
+.mark.meh{color:var(--ink2);border-color:var(--ink2)}
+.mark small{display:block;font-size:8px;margin-top:6px;line-height:1.5}
+.banner{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P';font-size:14px;background:var(--red);color:#fff;border:4px solid var(--line);padding:8px 14px;display:none;z-index:5;white-space:nowrap}
+.banner.show{display:block;animation:blink .5s steps(2) 4}
+.toast{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:min(580px,96%);background:var(--red);color:#fff;border:4px solid var(--line);padding:8px 12px;font-size:21px;display:none;z-index:5}
+.toast.show{display:block}
+.pauseov{position:absolute;inset:0;background:rgba(25,22,28,.95);display:none;flex-direction:column;align-items:center;justify-content:center;font-family:'Press Start 2P';font-size:18px;z-index:6;text-align:center;line-height:2}
+.pauseov small{font-size:10px;color:var(--muted)}
+.pauseov.on{display:flex}
+.panel{background:rgba(0,0,0,.25);border:4px solid var(--line);padding:10px;margin-bottom:10px}
+.hbar{height:20px;border:3px solid var(--line);background:#1a1216}
+#hfill{height:100%;background:var(--green);transition:width .2s steps(4)}
+.hnum{font-family:'Press Start 2P';font-size:10px;margin-top:6px}
+.bignum{font-family:'Press Start 2P';font-size:18px}
+.tip{font-size:20px;color:var(--text)}
+.tray{display:grid;gap:8px;padding:10px 12px 14px;background:var(--desk2);border-top:4px solid var(--line)}
+.stamp{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px 8px;background:var(--paper2);border:4px solid var(--line);box-shadow:0 6px 0 var(--line);cursor:pointer;color:var(--ink);min-width:0}
+.stamp .handle{width:42%;height:10px;border:3px solid var(--line)}
+.stamp img{width:40px;height:40px;image-rendering:pixelated}
+.stamp .sname{font-family:'Press Start 2P';font-size:8px;text-align:center;line-height:1.3;word-break:break-word}
+.stamp .key{position:absolute;top:3px;left:5px;font-family:'Press Start 2P';font-size:8px;color:var(--ink2)}
+.stamp:hover{background:var(--paper)}
+.stamp.rejectst{background:#e6b2a8;border-color:var(--line)}
+.stamp.rejectst:hover{background:#f0c4bb}
+.stamp.rejectst .sname{color:var(--red)}
+.stamp.press,.stamp:active{transform:translateY(5px);box-shadow:0 1px 0 var(--line)}
+
+/* modals */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{max-width:620px;width:100%;max-height:92vh;overflow:auto}
+.modal.bookm{max-width:1000px}
+.mhead{font-family:'Press Start 2P';font-size:16px;margin-bottom:12px;line-height:1.4}
+.mhead.bad{color:var(--red)}
+.answer{display:flex;gap:12px;align-items:center;background:var(--paper2);border:3px solid var(--ink2);padding:8px;margin:8px 0}
+.answer img{width:56px;height:56px;image-rendering:pixelated}
+.aname{font-family:'Press Start 2P';font-size:13px;line-height:1.5}
+.small{font-size:20px;color:var(--ink2)}
+.why{font-size:24px}
+.jobbox{background:#f5ecd2;border:3px dashed var(--ink2);padding:8px 10px;margin:10px 0 16px;font-size:21px}
+
+/* report */
+.review{max-width:760px;width:100%;position:relative}
+.gradestamp{position:absolute;top:56px;right:26px;width:110px;height:110px;border:6px solid;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P';font-size:44px;transform:rotate(10deg);opacity:.85}
+.gradestamp.g-A,.gradestamp.g-B{color:var(--green);border-color:var(--green)}
+.gradestamp.g-C{color:#8a6a1a;border-color:#8a6a1a}
+.gradestamp.g-D,.gradestamp.g-F{color:var(--red);border-color:var(--red)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:12px 0;max-width:520px}
+.stat{background:var(--paper2);border:3px solid var(--ink2);padding:6px 10px}
+.stat .v{font-family:'Press Start 2P';font-size:13px;margin-top:4px}
+.shut{background:var(--red);color:#fff;padding:10px 14px;border:4px solid var(--line);margin:10px 0;font-size:22px}
+.shut b{font-family:'Press Start 2P';font-size:12px;display:block;margin-bottom:6px}
+.missed{display:grid;gap:8px}
+.mitem{display:flex;gap:10px;align-items:flex-start;background:#efe6c8;border:3px solid var(--ink2);padding:6px 8px}
+.mitem img{width:40px;height:40px;image-rendering:pixelated;flex:none}
+.fired h1{font-size:30px;color:var(--red);text-shadow:4px 4px 0 var(--shadow);line-height:1.5;margin:0 0 6px}
+.fired .lead{font-size:24px;text-align:left;max-width:56ch}
+
+@keyframes slideIn{from{transform:translateY(-50px) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}50%{transform:translateX(10px)}75%{transform:translateX(-6px)}}
+@keyframes blink{50%{opacity:.35}}
+@keyframes pulse{50%{transform:scale(1.15)}}
+
+@media (max-width:1000px){
+  .mapgrid{grid-template-columns:1fr}
+  .bodywrap{margin:0 auto 0 140px}
+  .desk{height:auto;min-height:100vh}
+  .floor{grid-template-columns:1fr}
+  .pile{min-height:120px}
+  .tray{grid-template-columns:repeat(4,1fr)!important}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script id="game-data">
+var ORGANELLES = {
+  nucleoid:{name:'Nucleoid (DNA)', short:'DNA', job:'The cell\u2019s instructions. A prokaryote has no nucleus, so its DNA floats in an area called the nucleoid. You are the DNA, so stamp this to keep a job with the DNA, like copying or repairing it.', tip:'Copy before splitting. Fix gene mistakes. Store instructions.', colors:['#5e3a86','#a35fc9','#f0c8ff'],
+    icon:['a.......b.','.a.....b..','..accab...','...ab.....','..b.a.....','.b...a....','b.....a...','.b...a....','..bccab...','...b.a....']},
+  ribosome:{name:'Ribosome', short:'RIBOSOME', job:'Tiny machines that read instructions and build proteins. Every cell has them, even bacteria.', tip:'Anything made of protein gets built here.', colors:['#7a3e22','#c46a3a','#f2b48a'],
+    icon:['..........','...aaaa...','..aaccaa..','..aaaaaa..','...bbbb...','..bbbbbb..','.bbbbbbbb.','.bbbbbbbb.','..bbbbbb..','..........']},
+  membrane:{name:'Cell Membrane', short:'MEMBRANE', job:'A thin, flexible layer around the cell. It is the gatekeeper that controls what goes in and out, and it receives messages from outside.', tip:'In, out, and messages at the door.', colors:['#22607d','#56a7c9','#bfe8f7'],
+    icon:['..........','cccccccccc','aaaaaaaaaa','a.a.a.a.a.','..........','.a.a.a.a.a','aaaaaaaaaa','cccccccccc','..........','..........']},
+  wall:{name:'Cell Wall', short:'CELL WALL', job:'A stiff layer outside the membrane. It protects the cell, holds its shape, and keeps it from bursting.', tip:'Strength, shape, and protection.', colors:['#6b5a2a','#a68f45','#d9c27a'],
+    icon:['aaaaaaaaaa','b...b...b.','aaaaaaaaaa','..b...b...','aaaaaaaaaa','b...b...b.','aaaaaaaaaa','..b...b...','aaaaaaaaaa','..........']},
+  cytoplasm:{name:'Cytoplasm', short:'CYTOPLASM', job:'The jelly-like fluid that fills the cell. Parts float and move through it, and many chemical reactions happen there.', tip:'The space where things float, mix, and react.', colors:['#2f6e4e','#7cc49a','#d4f5df'],
+    icon:['..........','.c....aa..','......aa..','...c......','.aa....c..','.aa.......','.....c..a.','..c.......','.......c..','..........']},
+  flagellum:{name:'Flagellum', short:'FLAGELLUM', job:'A whip-like tail that spins like a propeller to move the cell.', tip:'Any job that means moving somewhere.', colors:['#7d5f14','#d4a52a','#f5dc8a'],
+    icon:['..........','.aa.......','abba......','abba..a...','.aa..a.a..','...aa...a.','.........a','..........','..........','..........']},
+  nucleus:{name:'Nucleus', short:'NUCLEUS', job:'The control center (you!). It protects the DNA, copies DNA before the cell divides, and turns genes on. A spot inside called the nucleolus makes ribosome parts.', tip:'Copy DNA, turn genes on, make ribosome parts.', colors:['#3e3080','#7a62c4','#d7c9ff'],
+    icon:['...aaaa...','..abbbba..','.abbbbbba.','.abbccbba.','.abbccbba.','.abbbbbba.','..abbbba..','...aaaa...','..........','..........']},
+  rough:{name:'Rough ER', short:'ROUGH ER', job:'Folded membranes covered in ribosomes. It builds and folds proteins that will be shipped out of the cell or placed in membranes.', tip:'Folding proteins that will leave the cell.', colors:['#7d2f50','#c95f87','#ffd0e0'],
+    icon:['c.c.c.c.c.','aaaaaaaaa.','.........a','.aaaaaaaa.','a.c.c.c.c.','aaaaaaaaa.','.........a','.aaaaaaaaa','c.c.c.c.c.','..........']},
+  smooth:{name:'Smooth ER', short:'SMOOTH ER', job:'Folded tubes with no ribosomes. It makes lipids (fats), breaks down toxins, and stores calcium.', tip:'Fats, detox, and calcium.', colors:['#94466e','#d98ab0','#fbe0ee'],
+    icon:['..aaa.....','.a...a....','a.....a..a','.......aa.','...aaa....','..a...a...','.a.....a.a','a.......a.','..........','..........']},
+  golgi:{name:'Golgi Apparatus', short:'GOLGI', job:'The post office. It sorts, packages, and labels proteins into bubbles called vesicles, then ships them. It also makes lysosomes.', tip:'Package, label, ship.', colors:['#1f5e5e','#4fb0a8','#c8f2ec'],
+    icon:['..........','.aaaaaaaa.','a........a','..aaaaaa..','.a......a.','...aaaa...','..a....a..','....cc....','...c..c...','..........']},
+  mito:{name:'Mitochondria', short:'MITOCHONDRIA', job:'The power plants. They use sugar and oxygen to make ATP, the energy the cell runs on.', tip:'Anything that needs energy.', colors:['#8a3214','#e0643a','#ffc09a'],
+    icon:['..........','..aaaaaa..','.abbbbbba.','ab.c.c.cba','abc.c.c.ba','ab.c.c.cba','abc.c.c.ba','.abbbbbba.','..aaaaaa..','..........']},
+  reject:{name:'Reject', short:'REJECT', job:'Refuse the order. Stamp this when the cell cannot do the job because it does not have the part needed, or when the order is a fake sent by a virus.', tip:'Missing parts, wrong cell type, or a virus trick.', colors:['#a8352b','#d9584a','#ffd0c8'],
+    icon:['aa......aa','aaa....aaa','.aaa..aaa.','..aaaaaa..','...aaaa...','...aaaa...','..aaaaaa..','.aaa..aaa.','aaa....aaa','aa......aa']},
+  lysosome:{name:'Lysosome', short:'LYSOSOME', job:'The clean-up crew. Sacs of digestive enzymes that break down waste, worn-out parts, and invaders.', tip:'Destroy, digest, recycle.', colors:['#4f5e14','#98b03a','#e4f2a0'],
+    icon:['...aaaa...','..abbbba..','.abcbbcba.','.abbbbbba.','.abbcbbba.','.abbbbcba.','.abcbbbba.','..abbbba..','...aaaa...','..........']}
+};
+
+function M(arr){ return {from:arr[0], re:arr[1], text:arr[2], route:arr[3].split('>'), why:arr[4], final:!!arr[5]}; }
+
+var GENTLE = {start:10, min:6, rush:3.2, rushCount:6};
+var HARD   = {start:8,  min:4.8, rush:2.4, rushCount:6};
+
+var LEVELS = [
+{ id:'bacterium', name:'Bacterium', subtitle:'Training day 1: prokaryote', mode:'gentle', music:'bact', icon:'nucleoid',
+  blurb:'No nucleus. Just DNA, ribosomes, and the basics.',
+  intro:'You are the DNA of a bacterium. Bacteria are prokaryotes: they have no nucleus and no organelles wrapped in membranes. Your DNA just floats in an area called the nucleoid. Read each work order and stamp the part of the cell that should do the job.',
+  stamps:['nucleoid','ribosome','membrane','wall','cytoplasm','flagellum','reject'], spawn:GENTLE,
+  memos:[
+    ['Food sensor','Sugar nearby','Lots of sugar is outside the cell. Build an enzyme protein that can digest it.','ribosome','Enzymes are proteins, and ribosomes build all proteins.'],
+    ['Outer gate','Let the food in','Sugar molecules are pressing against the cell. Something needs to decide whether to let them inside.','membrane','The cell membrane controls what goes in and out of the cell.'],
+    ['Pressure gauge','Water rushing in','Water is flooding into the cell and it is starting to swell. We need something strong to keep it from bursting.','wall','The stiff cell wall pushes back so the cell does not pop when water rushes in.'],
+    ['Food tracker','Food to the left','There is a big patch of food to the left. Move the whole cell toward it.','flagellum','The flagellum spins like a propeller to move the cell.'],
+    ['Growth office','Time to split','The cell is big enough to divide into two. Before it splits, the instructions need to be copied.','nucleoid','The DNA is copied first so each new cell gets a full set of instructions. You are the DNA, so keep this job.'],
+    ['Repair crew','Need new pumps','The cell needs more pump proteins to pull in food. Who builds them?','ribosome','Pumps are made of protein. Ribosomes read the instructions and build proteins.'],
+    ['Cleanup crew','Waste piling up','Waste is building up inside the cell. Push it outside.','membrane','Waste leaves through the cell membrane, the gatekeeper.'],
+    ['Energy office','Quick energy','Sugar is now inside. Break it down for quick energy. Where does this chemical reaction happen?','cytoplasm','Bacteria have no mitochondria. The first steps of breaking down sugar happen in the jelly-like cytoplasm.'],
+    ['Heat sensor','Too hot here','The temperature here is too high. Move to a cooler spot.','flagellum','To change location, the cell swims with its flagellum.'],
+    ['Defense office','Weak spot found','There is a weak spot in the stiff outer layer. Patch it before it tears.','wall','The cell wall is the stiff outer layer that gives protection and shape.'],
+    ['Motor crew','Tail motor broken','The motor that spins the tail is broken. Build a new motor protein.','ribosome','The motor is a protein, so ribosomes build it.'],
+    ['Instruction check','Typo in a gene','One gene has a mistake in it. Check the instructions and repair the error.','nucleoid','DNA repair happens at the DNA itself. In bacteria, the DNA sits in the nucleoid.'],
+    ['Water gauge','Running dry','The cell is low on water. Let some water in.','membrane','Water passes in and out through the cell membrane.'],
+    ['Delivery desk','Parts are stuck','Materials need to move around inside the cell to reach the ribosomes. What fills the cell so things can float and travel?','cytoplasm','The cytoplasm is the jelly-like fluid that fills the cell. Everything floats and moves through it.'],
+    ['Shape office','Losing our shape','This bacterium is supposed to be rod-shaped, but it is getting lumpy. What holds its shape?','wall','The stiff cell wall holds the bacterium in its shape.'],
+    ['Nutrient desk','Building blocks outside','Amino acids, the building blocks of protein, are outside. Bring them in.','membrane','The cell membrane lets needed materials like amino acids in.'],
+    ['Grip team','Need to stick','We need tiny hair-like proteins to grab onto a surface. Build them.','ribosome','Those little hairs are made of protein, so ribosomes build them.'],
+    ['Smell sensor','Food to the right','The smell of food is stronger to the right. Head that way.','flagellum','The flagellum moves the cell toward food.'],
+    ['Storage office','Save it for later','Extra nutrients came in. Store them until the cell needs them. Where do they float?','cytoplasm','Bacteria store extra nutrients as little granules floating in the cytoplasm.'],
+    ['Planning desk','Which protein next?','A ribosome wants the instructions for the next protein. Where are the instructions kept?','nucleoid','The DNA holds every instruction. In a bacterium it floats in the nucleoid. Since you are the DNA, keep this job.'],
+    ['Repair crew','Torn gate','The thin, flexible gate that controls what comes in has a small tear. Add new pieces to it.','membrane','The cell membrane is the thin, flexible gate. New pieces get added right into it.'],
+    ['Protein desk','Rush order','The cell needs 300 copies of a protein that breaks down food. Get building.','ribosome','Ribosomes build proteins, and a cell has thousands of them working at once.']
+  ],
+  emergencies:[
+    ['ALARM: antibiotic','Wall under attack','An antibiotic is weakening the outer wall. Strengthen it now!','wall','Many antibiotics attack the bacterial cell wall. Rebuilding it keeps the cell from bursting.'],
+    ['ALARM: toxin','Poison nearby','A toxic chemical is drifting toward the cell. Get away fast!','flagellum','The flagellum lets a bacterium swim away from danger.'],
+    ['ALARM: flood','Cell swelling','Water is pouring in! The cell is about to burst!','wall','The rigid cell wall stops the cell from bursting.']
+  ]
+},
+{ id:'animal', name:'Animal Cell', subtitle:'Training day 2: eukaryote', mode:'gentle', music:'office2', icon:'nucleus', requires:['bacterium'], chainsLate:true,
+  blurb:'Promotion! A real nucleus and a full team.',
+  intro:'Promotion! You are now the nucleus of an animal cell, a eukaryote. Your DNA is protected inside a membrane, and you have a whole team of organelles. Later orders need more than one stamp, in the right order. That is organelles working together.',
+  stamps:['nucleus','ribosome','rough','smooth','golgi','mito','lysosome','membrane','reject'], spawn:GENTLE,
+  memos:[
+    ['Energy office','Running low','The cell is low on energy. Turn sugar into energy the cell can use.','mito','Mitochondria use sugar and oxygen to make ATP, the cell\u2019s energy.'],
+    ['Protein desk','In-house protein','Build a protein that will stay and work inside the cell.','ribosome','Free-floating ribosomes build proteins that stay inside the cell.'],
+    ['Recycling center','Worn-out part','An old mitochondrion is worn out. Break it down so its parts can be reused.','lysosome','Lysosomes break down old cell parts and recycle them.'],
+    ['Shipping dept','Needs labels','Finished proteins need to be packaged and labeled for delivery.','golgi','The Golgi apparatus packages and labels proteins, like a post office.'],
+    ['Building crew','Need fats','New membrane is needed. Make the lipids (fats) to build it.','smooth','The smooth ER makes lipids.'],
+    ['Gate report','Sugar outside','Glucose is waiting outside the cell. Let it in.','membrane','The cell membrane controls what enters the cell.'],
+    ['Growth office','Splitting soon','The cell is getting ready to divide. Copy all of the DNA.','nucleus','DNA is copied inside the nucleus before the cell divides. That is you!'],
+    ['Folding dept','Floppy protein','A protein made for export needs to be folded into the right shape.','rough','The rough ER folds proteins that will be shipped out or placed in membranes.'],
+    ['Security','Intruder inside','The cell swallowed a bacterium. Destroy it.','lysosome','Lysosomes use strong enzymes to break down invaders.'],
+    ['Safety office','Toxin inside','A harmful chemical got inside. Break it down so it is safe.','smooth','The smooth ER breaks down toxins.'],
+    ['Movement team','On the move','The cell is crawling to a new spot and needs extra energy.','mito','Moving takes ATP, and mitochondria make ATP.'],
+    ['Cleanup crew','Waste to go','Waste from the cell\u2019s reactions needs to leave the cell.','membrane','Waste exits through the cell membrane.'],
+    ['Supply office','Ribosome shortage','The cell is running low on ribosomes. Start making new ribosome parts.','nucleus','A spot in the nucleus called the nucleolus builds ribosome parts.'],
+    ['Mail room','Missing address','A package needs a shipping label so it goes to the cell membrane.','golgi','The Golgi adds labels so packages get to the right place.'],
+    ['Pump station','Pumps need power','The pumps in the membrane need energy to keep working.','mito','Pumps run on ATP from the mitochondria.'],
+    ['Export desk','New export order','Start a protein that will be shipped out of the cell. First build it, then fold it.','ribosome>rough','Ribosomes on the rough ER build the protein, then the rough ER folds it.'],
+    ['Folding dept','Fold and pack','A new export protein needs to be folded, then packaged.','rough>golgi','The rough ER folds the protein, then the Golgi packages it.'],
+    ['Shipping dept','Hormone release','A hormone is ready. Package it, then release it out of the cell.','golgi>membrane','The Golgi packs it into a vesicle, then the vesicle merges with the membrane to release it.'],
+    ['Recycling center','More cleanup crews','The cell needs more lysosomes. Package digestive enzymes, then send them off to become lysosomes.','golgi>lysosome','The Golgi packages digestive enzymes into sacs that become lysosomes.'],
+    ['Repair crew','Torn edge','The outer edge of the cell has a tear. Make new lipids, then patch the edge.','smooth>membrane','The smooth ER makes lipids, which are used to repair the cell membrane.'],
+    ['Security','Caught one!','The edge of the cell is wrapping around a bacterium to pull it in. Bring it in, then destroy it.','membrane>lysosome','The membrane engulfs the bacterium, then a lysosome digests it.'],
+    ['Export desk','Full shipment','Make an export protein from start to finish: build it, fold it, then package it.','ribosome>rough>golgi','Ribosome builds, rough ER folds, Golgi packages. This is the protein assembly line.']
+  ],
+  emergencies:[
+    ['ALARM: power','Power failure','ATP is almost gone! Make energy now!','mito','Mitochondria make ATP.'],
+    ['ALARM: poison','Toxin spill','A toxin is spreading inside the cell! Break it down!','smooth','The smooth ER breaks down toxins.'],
+    ['ALARM: invader','Virus pieces inside','Invading virus pieces are inside the cell! Destroy them!','lysosome','Lysosomes digest invaders.']
+  ]
+},
+{ id:'muscle', name:'Muscle Cell', subtitle:'Body assignment: muscle', mode:'penalty', music:'muscle', icon:'mito', requires:['animal'],
+  blurb:'Squeeze to move. Needs huge amounts of energy.',
+  intro:'Welcome to a muscle cell. Muscle cells squeeze to move your body, and that takes huge amounts of energy, so they are packed with mitochondria. This is the real job now: wrong stamps cost cell health, and a full inbox drains health.',
+  stamps:['nucleus','ribosome','rough','smooth','golgi','mito','lysosome','membrane','reject'], spawn:HARD,
+  memos:[
+    ['Coach','Sprint!','The runner just started a sprint. The muscle needs energy to contract right now.','mito','Muscles run on ATP, and mitochondria make it. Muscle cells are packed with mitochondria.'],
+    ['Nerve signal','Contract!','A signal says contract. Release the stored calcium that triggers the squeeze.','smooth','In muscle cells, a special smooth ER stores calcium and releases it to start a contraction.'],
+    ['Coach','Relax','The contraction is over. Pump the calcium back into storage so the muscle can relax.','smooth','Calcium goes back into the smooth ER so the muscle can relax.'],
+    ['Gym report','Need more fibers','Build more of the proteins that slide together when the muscle squeezes.','ribosome','Contraction fibers are proteins, so ribosomes build them.'],
+    ['Training office','More power plants','Training has increased energy demand. The power plants should split to make more of themselves.','mito','Mitochondria make more of themselves by splitting. Trained muscles have more mitochondria.'],
+    ['Recovery team','Damaged proteins','Hard exercise damaged some proteins. Break them down so they can be recycled.','lysosome','Lysosomes break down damaged parts for recycling.'],
+    ['Nerve signal','Message at the door','A nerve is sending a chemical message. Receive it at the cell surface.','membrane','Receptors in the cell membrane receive messages from nerves.'],
+    ['Blood delivery','Sugar arrived','Blood brought glucose. Let it into the muscle cell.','membrane','The cell membrane controls what comes in.'],
+    ['Growth office','Get stronger','The muscle needs to grow. Turn on the genes for more muscle protein.','nucleus','Genes are turned on in the nucleus. That is you!'],
+    ['Training office','Bigger muscles','Copy the gene for a muscle protein, then send it out to be built.','nucleus>ribosome','The nucleus copies the gene. Ribosomes read the copy and build the protein.'],
+    ['Blood delivery','Oxygen here','Oxygen arrived from the blood. Let it in, then send it to the power plants.','membrane>mito','Oxygen crosses the membrane, then mitochondria use it to make ATP.'],
+    ['Recycling center','Tired power plant','An old mitochondrion stopped working. Break it down.','lysosome','Lysosomes recycle worn-out organelles.'],
+    ['Signal office','New receivers','The cell needs new receiver proteins on its surface. Build, fold, package, and deliver them.','ribosome>rough>golgi>membrane','Membrane proteins are built by ribosomes, folded in the rough ER, packaged by the Golgi, then placed in the membrane.'],
+    ['Repair crew','Torn surface','Heavy lifting tore the surface. Make new lipids, then patch the outer edge.','smooth>membrane','The smooth ER makes lipids that repair the membrane.'],
+    ['Coach','Max lift','The person is lifting a heavy box. Maximum power needed!','mito','Big efforts need lots of ATP from mitochondria.'],
+    ['Recovery team','Need cleanup crews','Lots of damage after the game. Package enzymes to make more lysosomes.','golgi>lysosome','The Golgi packages enzymes into new lysosomes.'],
+    ['Calcium control','Too much calcium','Calcium levels in the cell are too high. Store it safely.','smooth','Muscle cells store calcium in their special smooth ER.'],
+    ['Supply office','Ribosome shortage','Muscle protein demand is huge. Make more ribosome parts.','nucleus','The nucleolus inside the nucleus makes ribosome parts.'],
+    ['Temperature office','Shiver time','The body is cold. Muscles will shiver to make heat, and that needs energy.','mito','Shivering is fast contraction, which uses ATP from mitochondria.'],
+    ['Repair crew','Fix the fibers','Build new protein pieces to repair torn fibers.','ribosome','Ribosomes build the replacement proteins.'],
+    ['Signal office','Message out','A signal protein is ready. Package it, then release it.','golgi>membrane','The Golgi packages it, and the membrane releases it.'],
+    ['Blood delivery','Fat for fuel','Fat molecules arrived from the blood. Bring them in, then burn them for energy.','membrane>mito','Fats enter through the membrane, and mitochondria burn them to make ATP.']
+  ],
+  emergencies:[
+    ['ALARM: cramp','Muscle cramp!','The muscle is stuck squeezing! Pull the calcium back into storage!','smooth','Pumping calcium back into the smooth ER lets the muscle relax.'],
+    ['ALARM: power','Energy crash','The runner is about to collapse mid-race. ATP now!','mito','Mitochondria make ATP.'],
+    ['ALARM: damage','Broken parts piling up','Damaged pieces are clogging the cell! Clear them out!','lysosome','Lysosomes break down damaged parts.']
+  ]
+},
+{ id:'pancreas', name:'Pancreas Cell', subtitle:'Body assignment: pancreas', mode:'penalty', music:'pancreas', icon:'golgi', requires:['animal'],
+  blurb:'An export factory for insulin and enzymes.',
+  intro:'Welcome to a pancreas cell. This cell is an export factory. It makes insulin, which controls blood sugar, and digestive enzymes for the gut, then ships them out. Expect long assembly-line orders. Wrong stamps cost cell health.',
+  stamps:['nucleus','ribosome','rough','smooth','golgi','mito','lysosome','membrane','reject'], spawn:HARD,
+  memos:[
+    ['Blood sugar monitor','Sugar is high','Blood sugar is high after lunch. Make insulin and release it: build, fold, package, deliver.','ribosome>rough>golgi>membrane','Insulin is a protein. Ribosomes build it, the rough ER folds it, the Golgi packages it, and the membrane releases it.'],
+    ['Gene office','Insulin gene','Turn on the insulin gene, then start building insulin.','nucleus>ribosome','The nucleus copies the gene, and ribosomes build the protein.'],
+    ['Shipping dept','Insulin ready','Insulin is already packed in vesicles. Release it into the blood.','membrane','Vesicles merge with the membrane to release insulin.'],
+    ['Enzyme factory','Needs packing','A digestive enzyme needs folding, then packaging.','rough>golgi','The rough ER folds, then the Golgi packages.'],
+    ['Energy office','Factory power','Building all these proteins takes a lot of energy.','mito','Mitochondria provide ATP for building proteins.'],
+    ['Sugar sensor','Check the blood','To sense blood sugar, the cell needs to let some glucose in.','membrane','Glucose enters through the cell membrane. That is how the cell senses blood sugar.'],
+    ['Storage office','Too much insulin','Extra insulin was made but is not needed. Break it down.','lysosome','Lysosomes break down extra insulin the cell does not need.'],
+    ['Building crew','Bubble material','The cell needs more lipids to build bubble membranes for shipping.','smooth','The smooth ER makes lipids.'],
+    ['Mail room','Two addresses','Label the enzyme packages so they go to the gut, not the blood.','golgi','The Golgi labels packages so they reach the right place.'],
+    ['Supply office','Protein rush','So much protein to build! Make more ribosome parts.','nucleus','The nucleolus in the nucleus makes ribosome parts.'],
+    ['Quality control','Bad fold','Some insulin is folded wrong. Refold it.','rough','The rough ER checks and refolds proteins.'],
+    ['Enzyme factory','New enzyme order','Start a digestive enzyme for export. Build it, then fold it.','ribosome>rough','Ribosomes on the rough ER build it, then the rough ER folds it.'],
+    ['Stomach signal','Meal coming','A hormone message says food is coming. Receive the message at the surface.','membrane','Receptors in the membrane receive the signal.'],
+    ['Shipping dept','Enzymes out','Enzymes need to be packaged and sent out to the gut.','golgi>membrane','The Golgi packages them, and the membrane releases them.'],
+    ['Energy office','Release costs energy','Pushing out insulin bubbles needs energy.','mito','Releasing vesicles uses ATP from mitochondria.'],
+    ['Recycling center','Old Golgi pieces','Worn-out Golgi pieces need recycling.','lysosome','Lysosomes recycle old organelle parts.'],
+    ['Calcium control','Hold the signal','Store calcium until it is time to release insulin.','smooth','The smooth ER stores calcium. A rise in calcium triggers insulin release.'],
+    ['Pizza alert','Big meal','A big pizza meal is coming. Make digestive enzymes from start to finish and release them.','ribosome>rough>golgi>membrane','The full protein assembly line: ribosome, rough ER, Golgi, membrane.'],
+    ['Growth office','New cell needed','Copy the DNA to make a new pancreas cell.','nucleus','DNA is copied in the nucleus.'],
+    ['Recycling center','More cleanup crews','Package enzymes to make new lysosomes.','golgi>lysosome','The Golgi makes lysosomes.'],
+    ['Security','Swallowed junk','The cell is pulling in some junk from outside. Bring it in, then digest it.','membrane>lysosome','The membrane takes it in, and a lysosome digests it.'],
+    ['Sugar sensor','Sugar inside','Glucose got in. Turn it into energy. The rise in ATP is the signal to release insulin!','mito','Mitochondria turn glucose into ATP. In these cells, more ATP tells the cell to release insulin.']
+  ],
+  emergencies:[
+    ['ALARM: sugar spike','Sugar spike!','Blood sugar is spiking! Release the stored insulin now!','membrane','Stored insulin vesicles release their insulin at the membrane.'],
+    ['ALARM: ER jam','Proteins jamming','Misfolded proteins are piling up! Fix the folding!','rough','The rough ER folds and refolds proteins.'],
+    ['ALARM: power','Power drop','ATP is crashing! Make energy now!','mito','Mitochondria make ATP.']
+  ]
+},
+{ id:'rbc', name:'Red Blood Cell', subtitle:'Secret assignment', mode:'gentle', music:'rbc', icon:'membrane', requires:['muscle','pancreas'], hidden:true, fixedOrder:true,
+  blurb:'A very unusual job.',
+  intro:'Welcome to a young red blood cell, growing in the bone marrow. Its whole job is to carry oxygen using a protein called hemoglobin. Something unusual happens to cells like this one...',
+  stamps:['nucleus','ribosome','mito','lysosome','membrane','reject'], spawn:{start:7,min:7,rush:7,rushCount:0},
+  memos:[
+    ['Bone marrow HQ','Welcome aboard','You are the nucleus of a young red blood cell. First job: build hemoglobin, the protein that carries oxygen.','ribosome','Hemoglobin is a protein, so ribosomes build it.'],
+    ['Gene office','Turn it on','Turn on the hemoglobin genes so more can be made.','nucleus','Genes are turned on in the nucleus.'],
+    ['Bone marrow HQ','Iron needed','Hemoglobin needs iron. Let iron into the cell.','membrane','Iron enters through the cell membrane.'],
+    ['Energy office','Building power','Building hemoglobin needs energy.','mito','Mitochondria make ATP.'],
+    ['Bone marrow HQ','More hemoglobin','Make even more hemoglobin! Fill the cell!','ribosome','Ribosomes keep building hemoglobin.'],
+    ['Bone marrow HQ','Make room','To fit more hemoglobin, the power plants must go. Break them down.','lysosome','Maturing red blood cells break down their mitochondria. Without them, the cell does not use up the oxygen it carries.'],
+    ['Bone marrow HQ','Final restructuring','To make room for even more hemoglobin, the nucleus must be pushed out of the cell. Yes... that means you. Stamp your own exit.','membrane','Mature red blood cells push the nucleus out through the membrane, leaving more space for hemoglobin.',true]
+  ],
+  emergencies:[]
+}
+];
+var EUK_VIRUS = [
+  ['Flu Virus Express','Urgent copy job','URGENT: copy this genetic code and build 10,000 new virus shells. Do not tell security.','reject','This is a virus trying to hijack the cell. Viruses cannot copy themselves, so they trick cells into doing it.'],
+  ['Cold Virus Inc.','Special delivery','Your new instructions are attached. Stop your normal work and make copies of us instead.','reject','A real order never asks the cell to stop its jobs and make virus copies. Reject it!'],
+  ['Mystery Sender','Free upgrade!','Free upgrade inside! Just copy this attached DNA into your genes and build what it says.','reject','Strange DNA from outside is a sign of a virus. Some viruses even sneak their DNA into the cell\u2019s own genes.']
+];
+var REJECTS = {
+  bacterium:{
+    viruses:[
+      ['Totally Normal Virus','Please copy me','Hello friend! Please copy this strange new DNA and build the proteins on this list. Trust me.','reject','This is a virus. Viruses cannot copy themselves, so they trick cells into doing it. A healthy cell should refuse.'],
+      ['Phage Delivery Co.','Bonus DNA inside!','We injected some bonus DNA into your cell. Please build 100 copies of us right away. Thanks!','reject','This is a bacteriophage, a virus that infects bacteria. It tricks the cell into building more viruses.']
+    ],
+    impossible:[
+      ['Energy office','Power plant request','Send this sugar to the mitochondria so they can turn it into energy.','reject','Bacteria are prokaryotes. They have no mitochondria or any other organelle wrapped in a membrane.'],
+      ['Shipping dept','Golgi delivery','Package these proteins in the Golgi apparatus and ship them out.','reject','Bacteria do not have a Golgi apparatus. Only eukaryote cells do.'],
+      ['Security','Lock it up','Move all the DNA inside the nucleus so it stays safe.','reject','Bacteria have no nucleus. Their DNA floats in the nucleoid.'],
+      ['Recycling center','Lysosome job','Send this worn-out protein to a lysosome to be digested.','reject','Bacteria do not have lysosomes. Lysosomes are found in eukaryote cells.']
+    ]},
+  animal:{ viruses:EUK_VIRUS, impossible:[
+      ['Food office','Make our own food','Use the chloroplasts to turn sunlight into sugar.','reject','Animal cells have no chloroplasts. Animals have to eat to get sugar.'],
+      ['Defense office','Stiffen up','Strengthen the stiff cell wall around the cell.','reject','Animal cells have no cell wall, only a flexible cell membrane. Plants, fungi, and bacteria have cell walls.'],
+      ['Storage office','Fill the big tank','Fill the giant central vacuole with water.','reject','A giant central vacuole is a plant cell feature. Animal cells have only small vacuoles, if any.'],
+      ['Mail room','Wrong address','Send this order to the nucleoid, where the DNA floats freely.','reject','A nucleoid is found in prokaryotes like bacteria. In an animal cell, the DNA is inside the nucleus.']
+    ]},
+  muscle:{ viruses:EUK_VIRUS, impossible:[
+      ['Pancreas office','Wrong building','Make insulin and release it into the blood.','reject','Insulin is made by pancreas cells. Every cell has the insulin gene, but only pancreas cells turn it on.'],
+      ['Sunlight office','Solar power','Use the chloroplasts to make sugar from sunlight.','reject','Muscle cells are animal cells. They have no chloroplasts.'],
+      ['Defense office','Armor up','Build a stiff cell wall so the muscle cannot be torn.','reject','Animal cells have no cell wall. A wall would also stop the muscle from squeezing and stretching.'],
+      ['Swim team','Start swimming','Spin the flagellum to swim over to the other arm.','reject','Muscle cells do not swim. They stay in place and squeeze.']
+    ]},
+  pancreas:{ viruses:EUK_VIRUS, impossible:[
+      ['Coach','Contract now','Squeeze the whole cell to help lift a weight.','reject','Squeezing to move the body is a muscle cell\u2019s job, not a pancreas cell\u2019s.'],
+      ['Sunlight office','Solar power','Use the chloroplasts to make sugar from sunlight.','reject','Pancreas cells are animal cells. No chloroplasts.'],
+      ['Defense office','Armor up','Build a stiff cell wall around the cell.','reject','Animal cells have no cell wall.'],
+      ['Storage office','Fill the big tank','Fill the giant central vacuole with water.','reject','Giant central vacuoles are found in plant cells.']
+    ]},
+  rbc:{ viruses:EUK_VIRUS, impossible:[
+      ['Sunlight office','Solar power','Use the chloroplasts to make sugar from sunlight.','reject','Red blood cells are animal cells. No chloroplasts.'],
+      ['Defense office','Stiff shell','Build a stiff cell wall around the cell.','reject','A red blood cell must bend to squeeze through tiny blood vessels. Animal cells have no cell wall anyway.'],
+      ['Pancreas office','Wrong building','Make digestive enzymes for the gut.','reject','Digestive enzymes are made by pancreas cells. A red blood cell\u2019s job is to carry oxygen.'],
+      ['Swim team','Start swimming','Spin the flagellum to swim through the blood.','reject','Red blood cells do not swim. The heart pumps them through the blood.']
+    ]}
+};
+
+var COMING = [
+  {id:'nerve', name:'Nerve Cell', x:50, y:10, side:'R', tag:'Sends long-distance signals.'},
+  {id:'wbc', name:'White Blood Cell', x:40, y:26, side:'L', tag:'Hunts and destroys invaders.'},
+  {id:'liver', name:'Liver Cell', x:40, y:46, side:'L', tag:'The detox center.'},
+  {id:'fat', name:'Fat Cell', x:35, y:72, side:'L', tag:'Stores energy as fat.'}
+];
+var BODY_NODES = [
+  {id:'muscle', x:17, y:42, side:'L'},
+  {id:'pancreas', x:60, y:50, side:'R'},
+  {id:'rbc', x:60, y:28, side:'R'}
+];
+var ANIMAL8 = ['nucleus','ribosome','rough','smooth','golgi','mito','lysosome','membrane','reject'];
+ORGANELLES.chloro = {name:'Chloroplast', short:'CHLOROPLAST', job:'The solar panels. They use sunlight, water, and carbon dioxide to make sugar. This is called photosynthesis. Found in plant cells, not animal cells.', tip:'Sunlight and making food.', colors:['#2f6a24','#5fa83f','#c9f0a8'],
+  icon:['..........','..aaaaaa..','.abbbbbba.','abccbccbba','abbbbbbbba','abbccbccba','abbbbbbbba','.abbbbbba.','..aaaaaa..','..........']};
+ORGANELLES.vacuole = {name:'Central Vacuole', short:'VACUOLE', job:'A giant sac that stores water, food, waste, and pigments. When it is full of water, it presses on the cell wall and keeps the plant firm.', tip:'Storing water and keeping the plant firm.', colors:['#2a5f8a','#6aa6d6','#d2ecff'],
+  icon:['.aaaaaaaa.','a........a','a.bbbbbb.a','a.bccccb.a','a.bccccb.a','a.bccccb.a','a.bbbbbb.a','a........a','.aaaaaaaa.','..........']};
+ORGANELLES.droplet = {name:'Lipid Droplet', short:'FAT DROP', job:'A storage bubble for fat. In a fat cell, one huge droplet fills almost the whole cell.', tip:'Storing and releasing fat.', colors:['#8a7414','#e0c43a','#fff2b0'],
+  icon:['...aaaa...','..abbbba..','.abccbbba.','.abcbbbba.','.abbbbbba.','.abbbbbba.','..abbbba..','...aaaa...','..........','..........']};
+ORGANELLES.wall.job = 'A stiff layer outside the membrane. It protects the cell, holds its shape, and keeps it from bursting. In plants, it is made of cellulose.';
+
+var NOT_ANIMAL = {
+  chloro:['Sunlight office','Solar power','Use the chloroplasts to make sugar from sunlight.','reject','This is an animal cell. Animal cells have no chloroplasts.'],
+  wall:['Defense office','Armor up','Build a stiff cell wall around the cell.','reject','Animal cells have no cell wall, only a flexible cell membrane.'],
+  swim:['Swim team','Start swimming','Spin the flagellum and swim somewhere new.','reject','This cell does not have a flagellum and does not swim.'],
+  insulin:['Pancreas office','Wrong building','Make insulin and release it into the blood.','reject','Insulin is a pancreas cell job. Every cell has the insulin gene, but only pancreas cells turn it on.'],
+  nerve:['Nerve office','Send a signal','Send an electrical message down a long wire to the toes.','reject','Sending signals over long distances is a nerve cell job.'],
+  squeeze:['Coach','Contract now','Squeeze the whole cell to help lift a weight.','reject','Squeezing to move the body is a muscle cell job.']
+};
+
+LEVELS.push(
+{ id:'liver', name:'Liver Cell', subtitle:'Body assignment: liver', mode:'penalty', music:'liver', icon:'smooth', requires:['animal'],
+  blurb:'The detox center and blood protein factory.',
+  intro:'Welcome to a liver cell. The liver cleans toxins and medicines out of the blood, stores sugar for later, and makes many of the proteins in your blood. Liver cells are packed with smooth ER for detox. Wrong stamps cost cell health.',
+  stamps:ANIMAL8, spawn:HARD,
+  memos:[
+    ['Pharmacy','Medicine leftovers','Leftover medicine in the blood needs to be broken down so it does not build up.','smooth','Liver cells use their smooth ER to break down medicines and toxins.'],
+    ['Blood check','Toxin from food','A harmful chemical from food reached the liver. Detox it.','smooth','Detox is a smooth ER job.'],
+    ['Blood protein desk','Low blood protein','The blood needs more of a protein that keeps water inside blood vessels. Build, fold, package, and release it.','ribosome>rough>golgi>membrane','Liver cells make many blood proteins and ship them out through the protein assembly line.'],
+    ['Clotting office','Cut finger','A cut finger needs clotting proteins in the blood. Make them and send them out.','ribosome>rough>golgi>membrane','Clotting proteins are made in the liver and shipped into the blood.'],
+    ['Energy office','Busy day','All this detox and protein building needs energy.','mito','Mitochondria make ATP.'],
+    ['Blood delivery','Sugar rush','After a meal, extra glucose arrived. Let it into the cell so it can be stored.','membrane','Glucose enters through the cell membrane. The liver stores it for later.'],
+    ['Fat office','Make cholesterol','The body needs cholesterol to build cell membranes. Make it.','smooth','Cholesterol is a lipid, and lipids are made in the smooth ER.'],
+    ['Fat office','Ship the fats','Fat packages made here need to be packaged and sent out into the blood.','golgi>membrane','The Golgi packages fat-carrying particles, then they leave through the membrane.'],
+    ['Recycling center','Cholesterol package','The cell is pulling in a cholesterol package from the blood. Bring it in, then break it open.','membrane>lysosome','The membrane pulls the package in, and a lysosome breaks it open so the cholesterol can be used.'],
+    ['Growth office','Regrow the liver','Part of the liver was damaged. Copy the DNA so this cell can divide and replace lost cells.','nucleus','Liver cells can divide to regrow lost tissue. DNA is copied in the nucleus first.'],
+    ['Gene office','More detox enzymes','Lots of toxins lately. Turn on the genes for detox enzymes, then build them.','nucleus>ribosome','The nucleus turns on the genes, and ribosomes build the enzymes.'],
+    ['Supply office','Ribosome shortage','So many proteins to make! Make more ribosome parts.','nucleus','The nucleolus inside the nucleus makes ribosome parts.'],
+    ['Bile office','Make bile parts','Bile helps digest fat in the gut. Make the fatty parts of bile.','smooth','Bile salts are made from cholesterol, a lipid made in the smooth ER.'],
+    ['Bile office','Bile out','Bile is ready. Send it out of the cell toward the gut.','membrane','Bile leaves through the cell membrane into tiny tubes that lead to the gut.'],
+    ['Quality control','Bad fold','A blood protein folded wrong. Refold it.','rough','The rough ER checks and refolds proteins.'],
+    ['Folding dept','Fold and pack','A new blood protein needs folding, then packaging.','rough>golgi','The rough ER folds it, then the Golgi packages it.'],
+    ['Blood delivery','Toxin at the door','A toxin is at the door. Let it in, then break it down.','membrane>smooth','It enters through the membrane, and the smooth ER breaks it down.'],
+    ['Energy office','Sugar for energy','Turn glucose into ATP for the cell.','mito','Mitochondria turn sugar into ATP.'],
+    ['Recycling center','More cleanup crews','Package enzymes to make more lysosomes.','golgi>lysosome','The Golgi makes lysosomes.'],
+    ['Repair crew','Torn edge','Make lipids, then patch the cell membrane.','smooth>membrane','Smooth ER lipids repair the membrane.'],
+    ['Blood sugar monitor','Sugar is low','Blood sugar is dropping between meals. Release stored sugar into the blood.','membrane','The liver releases stored glucose through the cell membrane to keep blood sugar steady.'],
+    ['Recycling center','Tired power plant','An old mitochondrion stopped working. Break it down.','lysosome','Lysosomes recycle worn-out organelles.']
+  ],
+  emergencies:[
+    ['ALARM: overdose','Medicine overload','Way too much medicine in the blood! Detox now!','smooth','The smooth ER breaks down medicines.'],
+    ['ALARM: power','Power drop','ATP is crashing! Make energy now!','mito','Mitochondria make ATP.'],
+    ['ALARM: low sugar','Blood sugar crash','Blood sugar is dangerously low! Release stored sugar now!','membrane','Stored glucose leaves the liver cell through the membrane.']
+  ]
+},
+{ id:'wbc', name:'White Blood Cell', subtitle:'Body assignment: immune system', mode:'penalty', music:'wbc', icon:'lysosome', requires:['animal'],
+  blurb:'Hunts, swallows, and destroys invaders.',
+  intro:'Welcome to a white blood cell, part of the immune system. White blood cells crawl through the body hunting germs. Some swallow germs whole and digest them with lysosomes. Others make antibodies, proteins that tag germs for destruction. Wrong stamps cost cell health.',
+  stamps:ANIMAL8, spawn:HARD,
+  memos:[
+    ['Security','Bacteria spotted','A bacterium is right outside the cell. Wrap around it and pull it in, then destroy it.','membrane>lysosome','White blood cells swallow germs with their membrane, then lysosomes digest them.'],
+    ['Security','Trapped germ','A swallowed germ is trapped inside a bubble. Destroy it.','lysosome','Lysosomes digest swallowed germs.'],
+    ['Patrol','Chase the germ','A germ is moving away. Crawl after it. That takes energy.','mito','Crawling uses ATP from mitochondria.'],
+    ['Alarm office','Help signal','Damaged tissue is calling for help with chemical signals. Receive the message.','membrane','Receptors in the membrane pick up signals.'],
+    ['Antibody desk','Make antibodies','Make antibodies, the proteins that tag germs. Build, fold, package, and release them.','ribosome>rough>golgi>membrane','Antibodies are proteins, so they go through the full assembly line before leaving the cell.'],
+    ['Gene office','New antibody','Turn on the gene for an antibody that matches this germ, then build it.','nucleus>ribosome','The nucleus turns on the gene, and ribosomes build the antibody.'],
+    ['Growth office','Call reinforcements','This infection is big. Copy the DNA so the cell can divide and make more fighters.','nucleus','Some white blood cells divide quickly during an infection. DNA is copied in the nucleus first.'],
+    ['Recycling center','More cleanup crews','The cell has eaten so many germs that it needs more lysosomes. Package more digestive enzymes.','golgi>lysosome','The Golgi packages enzymes into new lysosomes.'],
+    ['Signal office','Call for backup','Send a chemical message that calls other white blood cells. Package it, then release it.','golgi>membrane','The Golgi packages the signal, and the membrane releases it.'],
+    ['Folding dept','Fold the antibody','A new antibody needs to be folded into the right shape.','rough','The rough ER folds proteins that will leave the cell.'],
+    ['Supply office','Ribosome shortage','Antibody orders are huge. Make more ribosome parts.','nucleus','The nucleolus inside the nucleus makes ribosome parts.'],
+    ['Security','Dead cell','A dead body cell is in the way. Swallow it, then digest it.','membrane>lysosome','White blood cells clean up dead cells the same way they eat germs.'],
+    ['Energy office','Fight power','Fighting germs uses a lot of energy.','mito','Mitochondria make ATP.'],
+    ['Repair crew','Torn surface','The membrane tore while squeezing between cells. Make lipids, then patch it.','smooth>membrane','Smooth ER lipids repair the membrane.'],
+    ['Patrol','Squeeze through','The cell must squeeze out of a blood vessel to reach the infection. Get energy for the move.','mito','Squeezing and crawling use ATP.'],
+    ['Mail room','Label the shipment','Label these antibody packages so they leave the cell.','golgi','The Golgi labels packages.'],
+    ['Building crew','Need more wrapping','Make lipids for extra membrane to wrap around more germs.','smooth','The smooth ER makes lipids.'],
+    ['Antibody desk','Fold and pack','A new antibody needs folding, then packaging.','rough>golgi','The rough ER folds it, then the Golgi packages it.'],
+    ['Security','Virus pieces','Virus pieces are stuck to the cell. Pull them in, then break them down.','membrane>lysosome','The membrane pulls them in, and lysosomes break them down.'],
+    ['Protein desk','Germ sensors','Build sensor proteins that stay inside the cell to detect germs.','ribosome','Free ribosomes build proteins that stay inside the cell.'],
+    ['Recycling center','Worn-out parts','Break down old cell parts.','lysosome','Lysosomes recycle old parts.'],
+    ['Gate report','Fuel needed','Glucose is outside. Let it in for fuel.','membrane','The membrane controls what enters.']
+  ],
+  emergencies:[
+    ['ALARM: infection','Germ swarm!','A swarm of bacteria is attacking! Destroy the one already inside now!','lysosome','Lysosomes destroy swallowed germs.'],
+    ['ALARM: power','Out of energy','The cell is too tired to chase germs! ATP now!','mito','Mitochondria make ATP.'],
+    ['ALARM: signal','Danger signal','A loud danger signal is arriving from an infected cut! Receive it now!','membrane','Receptors in the membrane receive signals.']
+  ]
+},
+{ id:'nerve', name:'Nerve Cell', subtitle:'Body assignment: brain and nerves', mode:'penalty', music:'nerve', icon:'membrane', requires:['animal'],
+  blurb:'Sends lightning-fast signals.',
+  intro:'Welcome to a nerve cell, also called a neuron. Nerve cells send electrical signals along their membrane and pass messages to the next cell using chemical messengers. All that signaling takes huge amounts of energy. Wrong stamps cost cell health.',
+  stamps:ANIMAL8, spawn:HARD,
+  memos:[
+    ['Signal office','Message arriving','A chemical message arrived from the nerve cell next door. Receive it.','membrane','Receptors in the membrane receive messages.'],
+    ['Signal office','Fire the signal','Send the electrical signal racing along the cell.','membrane','The electrical signal travels along the cell membrane.'],
+    ['Pump station','Reset the charge','After each signal, pumps reset the cell. They need lots of energy.','mito','Membrane pumps use ATP, so nerve cells need many mitochondria.'],
+    ['Signal office','Message out','Messenger chemicals are packed in tiny bubbles. Release them at the end of the cell.','membrane','Bubbles merge with the membrane to release the messengers.'],
+    ['Shipping dept','Pack messengers','Package messenger proteins into bubbles, then release them.','golgi>membrane','The Golgi packages them, and the membrane releases them.'],
+    ['Receiver desk','New receivers','Build, fold, package, and deliver new receiver proteins to the surface.','ribosome>rough>golgi>membrane','Membrane proteins travel the full assembly line to reach the surface.'],
+    ['Energy office','Thinking hard','The brain is working on a math test. Signals are firing fast!','mito','Fast signaling uses lots of ATP.'],
+    ['Repair crew','Long wire repair','The long wire part of the cell needs new membrane. Make lipids, then add them.','smooth>membrane','The smooth ER makes lipids for the membrane.'],
+    ['Recycling center','Old receivers','Worn-out receiver proteins need to be broken down.','lysosome','Lysosomes break down old proteins.'],
+    ['Calcium control','Store calcium','Calcium levels are too high inside. Store it safely.','smooth','The smooth ER stores calcium.'],
+    ['Gene office','Learning','Something new was learned! Turn on genes to make proteins that strengthen connections.','nucleus','Learning can turn on genes in the nucleus.'],
+    ['Protein desk','Inside skeleton','Build proteins that stay inside to hold the long wire in shape.','ribosome','Free ribosomes build proteins that stay inside the cell.'],
+    ['Supply office','Ribosome shortage','Make more ribosome parts.','nucleus','The nucleolus makes ribosome parts.'],
+    ['Folding dept','Fold and pack','A receiver protein needs folding, then packaging.','rough>golgi','The rough ER folds it, then the Golgi packages it.'],
+    ['Recycling center','Worn-out power plant','An old mitochondrion stopped working. Break it down.','lysosome','Lysosomes recycle worn-out organelles.'],
+    ['Blood delivery','Fuel arrived','Glucose arrived. Let it in, then turn it into energy.','membrane>mito','Glucose enters through the membrane, and mitochondria turn it into ATP.'],
+    ['Gene office','Build messengers','Turn on the gene for a messenger protein, then build it.','nucleus>ribosome','The nucleus turns on the gene, and ribosomes build the protein.'],
+    ['Recycling center','More cleanup crews','Package enzymes to make new lysosomes.','golgi>lysosome','The Golgi makes lysosomes.'],
+    ['Signal office','Too many messages','Extra messenger chemicals are floating outside the cell. Pull them back in.','membrane','Nerve cells pull leftover messengers back in through the membrane.'],
+    ['Energy office','Power at the tip','The tip of the wire needs energy to release messages.','mito','Mitochondria travel to the tip to supply ATP.'],
+    ['Folding dept','Floppy protein','A new receiver protein needs to be folded.','rough','The rough ER folds proteins headed for the membrane.'],
+    ['Mail room','Long-distance package','This package must travel all the way down the long wire. Label it.','golgi','The Golgi labels packages so they reach the right place.']
+  ],
+  emergencies:[
+    ['ALARM: power','Signal failure','Pumps are failing and signals stopped! ATP now!','mito','Mitochondria make ATP.'],
+    ['ALARM: calcium','Calcium flood','Calcium is flooding in! Store it now!','smooth','The smooth ER stores calcium.'],
+    ['ALARM: hot stove','Hand on a hot stove!','Fire the pain signal now!','membrane','The signal travels along the cell membrane.']
+  ]
+},
+{ id:'fat', name:'Fat Cell', subtitle:'Body assignment: fat tissue', mode:'penalty', music:'fat', icon:'droplet', requires:['animal'],
+  blurb:'The body\u2019s energy storage tank.',
+  intro:'Welcome to a fat cell. Fat cells store energy as fat in one giant lipid droplet that fills almost the whole cell. They also send hormones that tell the brain how much energy is stored. New stamp: the lipid droplet. Wrong stamps cost cell health.',
+  stamps:['nucleus','ribosome','rough','smooth','golgi','mito','lysosome','membrane','droplet','reject'], spawn:HARD,
+  memos:[
+    ['Blood delivery','Fat incoming','Fat pieces arrived from a meal. Let them in, rebuild them into fat, then store them.','membrane>smooth>droplet','Fats come in through the membrane, the smooth ER builds them into stored fat, and the lipid droplet holds it.'],
+    ['Storage office','Store it','New fat is ready. Put it in storage.','droplet','The lipid droplet is the fat cell\u2019s storage tank.'],
+    ['Energy request','Body needs fuel','The body is exercising and needs fuel. Release stored fat into the blood.','droplet>membrane','Fat is released from the droplet, then leaves through the membrane.'],
+    ['Building crew','Make fat','Turn extra sugar into fat molecules.','smooth','The smooth ER makes lipids.'],
+    ['Hormone desk','Full signal','Make a hormone that tells the brain the body has plenty of energy: build, fold, package, release.','ribosome>rough>golgi>membrane','Fat cells make a hormone called leptin and ship it into the blood.'],
+    ['Blood delivery','Sugar arrived','Insulin says glucose is here. Let it in.','membrane','Glucose enters through the membrane.'],
+    ['Signal office','Insulin message','Insulin is knocking at the door. Receive the message.','membrane','Receptors in the membrane receive hormone messages.'],
+    ['Energy office','Cell power','The cell itself needs energy to stay alive.','mito','Mitochondria make ATP.'],
+    ['Gene office','More storage enzymes','Turn on genes for fat-storing enzymes, then build them.','nucleus>ribosome','The nucleus turns on the genes, and ribosomes build the enzymes.'],
+    ['Supply office','Ribosome shortage','Make more ribosome parts.','nucleus','The nucleolus makes ribosome parts.'],
+    ['Recycling center','Worn-out parts','Break down old cell parts.','lysosome','Lysosomes recycle old parts.'],
+    ['Storage office','Tank getting big','The fat drop keeps growing. Keep adding stored fat.','droplet','The lipid droplet holds the stored fat.'],
+    ['Repair crew','Stretched thin','The cell is stretching as it fills. Make lipids, then add them to the cell edge.','smooth>membrane','The smooth ER makes lipids for the membrane.'],
+    ['Folding dept','Fold and pack','A hormone protein needs folding, then packaging.','rough>golgi','The rough ER folds it, then the Golgi packages it.'],
+    ['Shipping dept','Hormone out','A hormone is ready. Package it, then release it.','golgi>membrane','The Golgi packages it, and the membrane releases it.'],
+    ['Brown fat office','Make heat','The body is cold. Burn fuel to make heat instead of storing it.','mito','Some fat cells, called brown fat, have extra mitochondria that burn fuel to make heat.'],
+    ['Energy request','Overnight fuel','It is the middle of the night and the body needs fuel. Release some stored fat.','droplet>membrane','Stored fat leaves the droplet, then exits through the membrane.'],
+    ['Recycling center','More cleanup crews','Package enzymes to make lysosomes.','golgi>lysosome','The Golgi makes lysosomes.'],
+    ['Gene office','Full signal gene','Turn on the gene for the hormone that says the body has plenty of energy.','nucleus','Genes are turned on in the nucleus.'],
+    ['Quality control','Floppy hormone','A hormone protein is folded wrong. Refold it.','rough','The rough ER refolds proteins.'],
+    ['Protein desk','Storage helpers','Build proteins that stay inside and coat the fat drop.','ribosome','Free ribosomes build proteins that stay inside the cell.'],
+    ['Mail room','Label it','Label hormone packages so they go to the blood.','golgi','The Golgi labels packages.']
+  ],
+  emergencies:[
+    ['ALARM: no food','No food for hours!','Blood fuel is running out! Break open the fat storage now!','droplet','Stored fat is released from the lipid droplet.'],
+    ['ALARM: power','Power drop','ATP is crashing! Make energy now!','mito','Mitochondria make ATP.'],
+    ['ALARM: toxin','Toxin inside','A toxin got in! Break it down!','smooth','The smooth ER breaks down toxins.']
+  ]
+},
+{ id:'plant', name:'Plant Cell', subtitle:'Field trip: leaf cell', mode:'penalty', music:'plant', icon:'chloro', requires:['animal'],
+  blurb:'Leave the body for a leaf. Chloroplasts and a giant vacuole.',
+  intro:'Field trip! You are the nucleus of a leaf cell. Plant cells have everything an animal cell has, plus three new parts: chloroplasts that make food from sunlight, a giant central vacuole that stores water, and a stiff cell wall. Watch out: plants have mitochondria too. Wrong stamps cost cell health.',
+  stamps:['nucleus','ribosome','rough','golgi','mito','chloro','vacuole','wall','membrane','reject'], spawn:HARD,
+  memos:[
+    ['Sunlight office','Sunny day','Sunlight is hitting the leaf. Use it to make sugar.','chloro','Chloroplasts use sunlight, water, and carbon dioxide to make sugar. This is photosynthesis.'],
+    ['Night shift','Lights out','It is night, so there is no sunlight. Turn stored sugar into energy the cell can use.','mito','Plants have mitochondria too! They turn sugar into ATP day and night.'],
+    ['Water office','Drooping leaves','The plant is wilting. Fill the big water tank so the cell gets firm again.','vacuole','The central vacuole stores water. When it is full, it presses outward and keeps the plant firm.'],
+    ['Defense office','Hungry caterpillar','A bug is chewing the leaf. Strengthen the tough outer layer.','wall','The plant cell wall is made of cellulose. It protects the cell and holds its shape.'],
+    ['Gate report','Air exchange','Carbon dioxide is outside. Let it in for photosynthesis.','membrane','Carbon dioxide enters through the cell membrane.'],
+    ['Sugar office','Food to energy','Make sugar from sunlight, then turn it into energy the cell can use.','chloro>mito','Chloroplasts make sugar. Mitochondria turn that sugar into ATP. Plants need both!'],
+    ['Growth office','Growing tall','The cell is getting ready to divide. Copy the DNA.','nucleus','DNA is copied in the nucleus.'],
+    ['Building crew','New wall material','A new wall is needed between two new cells. Package the wall materials, then send them to build the wall.','golgi>wall','The Golgi packages wall materials and sends them out to build the cell wall.'],
+    ['Storage office','Stash the waste','Some waste cannot leave. Store it safely away.','vacuole','The central vacuole stores waste and other materials.'],
+    ['Protein desk','Build an enzyme','Build an enzyme that stays inside the cell.','ribosome','Free ribosomes build proteins that stay inside the cell.'],
+    ['Export desk','Protein for export','Build, fold, package, and release a protein out of the cell.','ribosome>rough>golgi>membrane','Plant cells use the same protein assembly line as animal cells.'],
+    ['Water office','Water arriving','Water from the roots has arrived. Let it in, then store it.','membrane>vacuole','Water crosses the membrane, then the central vacuole stores it.'],
+    ['Color office','Flower colors','Store the colorful pigments that make the flower petals bright.','vacuole','Many flower colors come from pigments stored in the central vacuole.'],
+    ['Sunlight office','More solar panels','The plant is in bright sun. The chloroplasts should split to make more of themselves.','chloro','Like mitochondria, chloroplasts make more of themselves by splitting.'],
+    ['Gene office','Turn on growth genes','Turn on genes for growth proteins, then build them.','nucleus>ribosome','The nucleus turns on the genes, and ribosomes build the proteins.'],
+    ['Supply office','Ribosome shortage','Make more ribosome parts.','nucleus','The nucleolus makes ribosome parts.'],
+    ['Folding dept','Fold and pack','A protein needs folding, then packaging.','rough>golgi','The rough ER folds it, then the Golgi packages it.'],
+    ['Defense office','Bitter taste','Store a bitter chemical that makes the leaf taste bad to animals.','vacuole','Plants store defense chemicals in the central vacuole.'],
+    ['Energy office','Pumps need power','Pumps in the membrane need ATP.','mito','Mitochondria make ATP.'],
+    ['Water office','Too much pressure','Water is pressing hard on the edges. What keeps the cell from bursting?','wall','The rigid cell wall pushes back so a full vacuole does not burst the cell.'],
+    ['Sunlight office','Morning light','The sun is up. Start making food.','chloro','Chloroplasts make food from sunlight.'],
+    ['Gate report','Sugar for the roots','Extra sugar is needed down in the roots. Send it out of the cell.','membrane','Sugar leaves through the cell membrane to travel to other parts of the plant.']
+  ],
+  emergencies:[
+    ['ALARM: drought','Drought!','The plant is losing water fast! Hold on to the water in the big tank!','vacuole','The central vacuole stores the cell\u2019s water.'],
+    ['ALARM: bugs','Bug attack!','Bugs are chewing through! Strengthen the wall now!','wall','The cell wall protects the cell.'],
+    ['ALARM: power','Power drop','ATP is crashing! Make energy now!','mito','Mitochondria make ATP, even in plants.']
+  ]
+});
+
+REJECTS.liver = {viruses:EUK_VIRUS, impossible:[NOT_ANIMAL.chloro, NOT_ANIMAL.wall, NOT_ANIMAL.squeeze, NOT_ANIMAL.nerve]};
+REJECTS.wbc = {viruses:EUK_VIRUS, impossible:[NOT_ANIMAL.chloro,
+  ['Defense office','Armor up','Build a stiff cell wall around the cell.','reject','Animal cells have no cell wall. A wall would also stop a white blood cell from squeezing between cells.'],
+  NOT_ANIMAL.insulin, NOT_ANIMAL.nerve]};
+REJECTS.nerve = {viruses:EUK_VIRUS, impossible:[
+  ['Growth office','Time to divide','Copy the DNA so this nerve cell can split into two new nerve cells.','reject','Most mature nerve cells do not divide. That is one reason brain and spinal cord injuries are so hard to heal.'],
+  NOT_ANIMAL.chloro, NOT_ANIMAL.wall,
+  ['Swim team','Start swimming','Spin the flagellum and swim to the other side of the brain.','reject','Nerve cells stay in place. They send signals instead of moving.']]};
+REJECTS.fat = {viruses:EUK_VIRUS, impossible:[NOT_ANIMAL.chloro, NOT_ANIMAL.wall, NOT_ANIMAL.squeeze,
+  ['Storage office','Fill the big tank','Fill the giant central vacuole with water.','reject','Fat cells store fat in a lipid droplet, not a central vacuole. Giant water vacuoles are a plant cell feature.']]};
+REJECTS.plant = {
+  viruses:[
+    ['Mosaic Virus Co.','Leaf makeover','Free leaf makeover! Just copy this attached genetic code and build what it says.','reject','This is a plant virus, like tobacco mosaic virus. It tricks the cell into making copies of the virus.'],
+    ['Mystery Sender','Free upgrade!','Free upgrade inside! Just copy this attached DNA into your genes and build what it says.','reject','Strange genetic code from outside is a sign of a virus. Reject it!']
+  ],
+  impossible:[
+    ['Swim team','Start swimming','Spin the flagellum and swim toward the sun.','reject','Plant cells do not swim. Plants grow toward light instead.'],
+    ['Security','Chase the germ','Crawl after a germ and swallow it whole.','reject','Plant cells are locked inside stiff walls, so they cannot crawl or swallow germs.'],
+    ['Kitchen','Lunch break','Go find some food and eat it.','reject','Plants do not eat food. They make their own sugar with chloroplasts.'],
+    ['Pancreas office','Wrong building','Make insulin for the blood.','reject','Plants do not have blood or insulin. That is a pancreas cell job.']
+  ]};
+
+COMING.length = 0;
+BODY_NODES.length = 0;
+[ {id:'nerve', x:50, y:11, side:'R'}, {id:'wbc', x:40, y:27, side:'L'}, {id:'rbc', x:60, y:29, side:'R'},
+  {id:'muscle', x:17, y:42, side:'L'}, {id:'liver', x:40, y:46, side:'L'}, {id:'pancreas', x:60, y:50, side:'R'},
+  {id:'fat', x:36, y:72, side:'L'} ].forEach(function(n){ BODY_NODES.push(n); });
+
+LEVELS.unshift({ id:'starter', name:'Training Cell', subtitle:'Training: a simple eukaryotic cell', mode:'gentle', music:'office2', icon:'nucleus',
+  blurb:'Start here. Learn the basic team.',
+  intro:'Welcome to your first day! You are the nucleus of a simple eukaryotic cell. Eukaryotic cells keep their DNA inside a nucleus, and they have organelles that each do a job. You will start with just five teammates. Read each work order and stamp the organelle that should do the job.',
+  stamps:['nucleus','ribosome','mito','lysosome','membrane','reject'], spawn:{start:11, min:7, rush:4, rushCount:5},
+  memos:[
+    ['Energy office','Running low','The cell is low on energy. Turn sugar into energy the cell can use.','mito','Mitochondria are the power plants. They turn sugar into ATP, the cell\u2019s energy.'],
+    ['Protein desk','Build a protein','The cell needs a new protein. Who builds it?','ribosome','Ribosomes build proteins.'],
+    ['Gate report','Food at the door','Sugar is waiting outside the cell. Let it in.','membrane','The cell membrane controls what goes in and out.'],
+    ['Recycling center','Broken part','An old part of the cell is broken. Break it down and recycle it.','lysosome','Lysosomes are the clean-up crew. They break down and recycle old parts.'],
+    ['Growth office','Time to divide','The cell is getting ready to split into two. Copy the DNA.','nucleus','DNA is copied in the nucleus. That is you!'],
+    ['Cleanup crew','Waste to go','Waste needs to leave the cell.','membrane','Waste leaves through the cell membrane.'],
+    ['Security','Germ inside','A germ got inside the cell. Destroy it.','lysosome','Lysosomes use strong enzymes to destroy invaders.'],
+    ['Movement team','On the move','The cell is moving and needs extra energy.','mito','Moving takes ATP, and mitochondria make it.'],
+    ['Repair crew','Repair proteins','Build new proteins to fix a damaged part.','ribosome','Ribosomes build the proteins.'],
+    ['Instruction desk','Where are the plans?','A ribosome needs the instructions for a protein. Where are they kept?','nucleus','The DNA instructions are kept safe in the nucleus.'],
+    ['Pump station','Pumps need power','The pumps in the cell membrane need energy.','mito','Pumps run on ATP from mitochondria.'],
+    ['Water gauge','Too dry','The cell needs water. Let some in.','membrane','Water moves in and out through the membrane.'],
+    ['Recycling center','Worn-out power plant','An old mitochondrion stopped working. Break it down.','lysosome','Lysosomes recycle worn-out organelles.'],
+    ['Protein desk','Rush order','Build 500 copies of an enzyme protein.','ribosome','Enzymes are proteins, so ribosomes build them.'],
+    ['Gene office','Turn on a gene','The cell needs a new kind of protein. Turn on the gene for it.','nucleus','Genes are turned on in the nucleus.'],
+    ['Signal office','Message at the door','A chemical message arrived outside. Receive it at the surface.','membrane','Receptors in the membrane receive messages.'],
+    ['Energy office','Busy day','Building proteins takes energy. Make ATP.','mito','Mitochondria make ATP.'],
+    ['Cleanup crew','Junk pile','Junk is piling up inside the cell. Digest it.','lysosome','Lysosomes digest waste.'],
+    ['Protein desk','Membrane pumps','Build new pump proteins.','ribosome','Pumps are proteins, built by ribosomes.'],
+    ['Supply office','Ribosome shortage','The cell is running low on ribosomes. Make new ribosome parts.','nucleus','A spot inside the nucleus called the nucleolus makes ribosome parts.']
+  ],
+  emergencies:[
+    ['ALARM: power','Power failure','ATP is almost gone! Make energy now!','mito','Mitochondria make ATP.'],
+    ['ALARM: invader','Germ attack','A germ is loose inside the cell! Destroy it!','lysosome','Lysosomes destroy invaders.'],
+    ['ALARM: starving','Food stuck outside','The cell is starving and food is stuck outside! Let it in!','membrane','The membrane lets food in.']
+  ]
+});
+REJECTS.starter = {viruses:EUK_VIRUS, impossible:[NOT_ANIMAL.chloro, NOT_ANIMAL.wall,
+  ['Storage office','Fill the big tank','Fill the giant central vacuole with water.','reject','A giant central vacuole is a plant cell feature. This is an animal-type cell.'],
+  ['Mail room','Wrong address','Send this order to the nucleoid, where the DNA floats freely.','reject','A nucleoid is found in bacteria. In a eukaryotic cell, the DNA is inside the nucleus.']]};
+
+// after training, everything opens (red blood cell stays a secret bonus)
+LEVELS.forEach(function(L){ if(L.id!=='starter' && L.id!=='rbc') L.requires=['starter']; });
+(function(){
+  var A=lvl0('animal'); A.subtitle='Full animal cell'; A.icon='rough'; A.blurb='The whole team, plus teamwork orders.';
+  A.intro='This is a full animal cell, a eukaryote. You have the whole team now, including the rough ER, smooth ER, and Golgi. Later orders need more than one stamp, in the right order. That is organelles working together.';
+  var B=lvl0('bacterium'); B.subtitle='Prokaryote'; B.blurb='No nucleus. Just DNA, ribosomes, and the basics.';
+  B.intro='Now try a totally different kind of cell. You are the DNA of a bacterium. Bacteria are prokaryotes: unlike your training cell, they have no nucleus and no organelles wrapped in membranes. Your DNA just floats in an area called the nucleoid. Watch for orders that ask for parts a bacterium does not have.';
+  function lvl0(id){ return LEVELS.filter(function(L){return L.id===id;})[0]; }
+})();
+
+LEVELS.forEach(function(L){ L.memos=L.memos.map(M); L.emergencies=L.emergencies.map(M);
+  var R=REJECTS[L.id]||{viruses:[],impossible:[]}; L.viruses=R.viruses.map(M); L.impossible=R.impossible.map(M); });
+</script>
+
+<script>
+(function(){
+'use strict';
+var LIMIT = 6;
+var S = {name:'', progress:{}, unlockAll:false, music:false, sfx:true, scores:{}};
+var cur = null, tickId = null, lastT = 0, modalCb = null, toastT = null, bannerT = null;
+var app = document.getElementById('app');
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function lvl(id){ for(var i=0;i<LEVELS.length;i++) if(LEVELS[i].id===id) return LEVELS[i]; return null; }
+function O(k){ return ORGANELLES[k]; }
+
+/* ---------- pixel art ---------- */
+var iconCache = {};
+function icon(key){
+  if(iconCache[key]) return iconCache[key];
+  var o=O(key), rows=o.icon, sc=4, c=document.createElement('canvas');
+  c.width=10*sc; c.height=10*sc;
+  var g=c.getContext('2d'), pal={a:o.colors[0], b:o.colors[1], c:o.colors[2]};
+  for(var y=0;y<rows.length;y++) for(var x=0;x<rows[y].length;x++){
+    var ch=rows[y][x]; if(pal[ch]){ g.fillStyle=pal[ch]; g.fillRect(x*sc,y*sc,sc,sc); }
+  }
+  return iconCache[key]=c.toDataURL();
+}
+function rep(s,n){ var a=[]; for(var i=0;i<n;i++) a.push(s); return a; }
+var BODY = [].concat(
+  rep('.......XXXXXX.......',1), rep('......XXXXXXXX......',4), rep('.......XXXXXX.......',1), rep('........XXXX........',1),
+  rep('...XXXXXXXXXXXXXX...',1), rep('..XXXXXXXXXXXXXXXX..',2), rep('..XXX.XXXXXXXX.XXX..',7), rep('..XX..XXXXXXXX..XX..',3),
+  rep('......XXXXXXXX......',1), rep('......XXX..XXX......',10), rep('.....XXXX..XXXX.....',1));
+var bodyURL = null;
+function bodyImg(){
+  if(bodyURL) return bodyURL;
+  var sc=11, c=document.createElement('canvas'); c.width=20*sc; c.height=BODY.length*sc;
+  var g=c.getContext('2d'), x, y;
+  g.fillStyle='#1a1418';
+  for(y=0;y<BODY.length;y++) for(x=0;x<20;x++) if(BODY[y][x]==='X') g.fillRect(x*sc-3,y*sc-3,sc+6,sc+6);
+  for(y=0;y<BODY.length;y++) for(x=0;x<20;x++) if(BODY[y][x]==='X'){
+    g.fillStyle = (x+y)%2 ? '#b98466' : '#b07c5f'; g.fillRect(x*sc,y*sc,sc,sc);
+  }
+  // simple heart and gut hints
+  g.fillStyle='#9c3b3b'; g.fillRect(11*sc,9*sc,sc,sc);
+  g.fillStyle='#8f6a4a'; for(x=7;x<=12;x++) g.fillRect(x*sc,15*sc,sc,sc/2);
+  return bodyURL=c.toDataURL();
+}
+
+/* ---------- audio ---------- */
+var AU = {ctx:null, timer:null, track:'office', step:0, next:0, rush:false};
+function audioInit(){
+  if(AU.ctx) return;
+  var C = window.AudioContext || window.webkitAudioContext; if(!C) return;
+  AU.ctx = new C();
+  AU.master = AU.ctx.createGain(); AU.master.gain.value = 0.8; AU.master.connect(AU.ctx.destination);
+  AU.musicGain = AU.ctx.createGain(); AU.musicGain.gain.value = 0.5; AU.musicGain.connect(AU.master);
+  AU.sfxGain = AU.ctx.createGain(); AU.sfxGain.gain.value = 0.7; AU.sfxGain.connect(AU.master);
+  var len = Math.floor(AU.ctx.sampleRate*0.5);
+  AU.noise = AU.ctx.createBuffer(1, len, AU.ctx.sampleRate);
+  var d = AU.noise.getChannelData(0); for(var i=0;i<len;i++) d[i]=Math.random()*2-1;
+}
+function mtof(m){ return 440*Math.pow(2,(m-69)/12); }
+function tone(type,freq,t,dur,vol,dest,slideTo){
+  var o=AU.ctx.createOscillator(), g=AU.ctx.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(dest); o.start(t); o.stop(t+dur+0.02);
+}
+function noise(t,dur,vol,dest,hp){
+  var s=AU.ctx.createBufferSource(); s.buffer=AU.noise;
+  var f=AU.ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=hp||5000;
+  var g=AU.ctx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  s.connect(f); f.connect(g); g.connect(dest); s.start(t); s.stop(t+dur+0.02);
+}
+function sfx(n){
+  if(!S.sfx) return; audioInit(); if(!AU.ctx) return;
+  if(AU.ctx.state==='suspended') AU.ctx.resume();
+  var t=AU.ctx.currentTime, d=AU.sfxGain, i;
+  if(n==='stamp'){ noise(t,0.08,0.5,d,700); tone('square',130,t,0.12,0.3,d,60); }
+  else if(n==='good'){ tone('square',660,t+0.05,0.08,0.13,d); tone('square',990,t+0.13,0.12,0.13,d); }
+  else if(n==='step'){ noise(t,0.05,0.3,d,900); tone('square',520,t,0.07,0.12,d); }
+  else if(n==='bad'){ tone('sawtooth',150,t,0.32,0.2,d,80); }
+  else if(n==='alarm'){ for(i=0;i<6;i++) tone('square', i%2?620:880, t+i*0.14, 0.13, 0.11, d); }
+  else if(n==='paper'){ noise(t,0.12,0.12,d,2500); }
+  else if(n==='click'){ tone('square',880,t,0.03,0.07,d); }
+  else if(n==='fired'){ [72,67,64,60].forEach(function(m,k){ tone('square',mtof(m),t+k*0.25,0.22,0.14,d); }); tone('triangle',mtof(36),t+1,0.9,0.25,d); }
+  else if(n==='win'){ [60,64,67,72,76,79,84].forEach(function(m,k){ tone('square',mtof(m),t+k*0.09,0.12,0.11,d); }); }
+}
+var TRACKS = {
+  office:{bpm:100,
+    lead:[69,0,72,0,76,74,72,0, 71,0,74,0,72,71,69,0, 69,0,72,0,76,79,77,76, 74,0,72,71,69,0,0,0],
+    bass:[45,0,45,0,52,0,45,0, 43,0,43,0,50,0,43,0, 41,0,41,0,48,0,41,0, 40,0,40,0,47,0,40,0]},
+  office2:{bpm:116,
+    lead:[69,0,72,0,76,74,72,0, 71,0,74,0,72,71,69,0, 69,0,72,0,76,79,77,76, 74,0,72,71,69,0,0,0],
+    bass:[45,57,45,57,52,0,45,0, 43,55,43,55,50,0,43,0, 41,53,41,53,48,0,41,0, 40,52,40,52,47,0,40,0]},
+  bact:{bpm:110,
+    lead:[72,0,76,79,76,0,72,0, 74,0,77,81,77,0,74,0, 76,79,84,79,76,72,74,76, 74,0,71,0,67,0,0,0],
+    bass:[48,0,55,0,48,0,55,0, 50,0,57,0,50,0,57,0, 52,0,59,0,53,0,60,0, 55,0,55,0,43,0,0,0]},
+  muscle:{bpm:132,
+    lead:[64,64,0,67,0,64,71,0, 69,0,67,0,66,0,64,0, 64,64,0,67,0,64,72,71, 69,67,66,67,64,0,0,0],
+    bass:[40,40,52,40,40,52,40,52, 36,36,48,36,38,38,50,38, 40,40,52,40,40,52,40,52, 35,35,47,35,35,47,35,47]},
+  pancreas:{bpm:120,
+    lead:[74,0,78,0,81,0,78,0, 76,0,79,0,83,0,79,0, 78,81,86,81,78,76,74,76, 73,0,76,0,74,0,0,0],
+    bass:[50,0,57,0,50,0,57,0, 55,0,62,0,55,0,62,0, 47,0,54,0,47,0,54,0, 45,0,52,0,50,0,0,0]},
+  liver:{bpm:108,
+    lead:[67,0,70,0,72,74,72,70, 69,0,72,0,74,0,72,0, 67,70,74,77,75,74,72,70, 69,0,66,0,67,0,0,0],
+    bass:[43,0,50,0,43,0,50,0, 41,0,48,0,41,0,48,0, 39,0,46,0,39,0,46,0, 38,0,45,0,43,0,0,0]},
+  wbc:{bpm:140,
+    lead:[69,72,76,72,69,72,76,79, 77,76,74,72,74,0,71,0, 69,72,76,72,69,72,76,81, 79,77,76,74,76,0,0,0],
+    bass:[45,45,57,45,45,57,45,57, 41,41,53,41,43,43,55,43, 45,45,57,45,45,57,45,57, 40,40,52,40,40,52,40,52]},
+  nerve:{bpm:126,
+    lead:[76,0,76,79,0,76,83,0, 81,0,79,0,78,0,76,0, 76,0,76,79,0,76,84,83, 81,79,78,79,76,0,0,0],
+    bass:[40,52,40,52,40,52,40,52, 45,57,45,57,47,59,47,59, 40,52,40,52,40,52,40,52, 47,59,47,59,40,52,40,0]},
+  fat:{bpm:96,
+    lead:[65,0,69,0,72,0,69,0, 70,0,74,0,77,0,74,0, 72,0,69,0,65,0,67,69, 67,0,64,0,65,0,0,0],
+    bass:[41,0,48,0,41,0,48,0, 46,0,53,0,46,0,53,0, 41,0,48,0,41,0,48,0, 48,0,48,0,41,0,0,0]},
+  plant:{bpm:104,
+    lead:[67,0,71,74,71,0,67,0, 72,0,76,79,76,0,72,0, 71,74,79,74,71,67,69,71, 69,0,66,0,67,0,0,0],
+    bass:[43,0,50,0,43,0,50,0, 48,0,55,0,48,0,55,0, 43,0,50,0,40,0,47,0, 50,0,50,0,43,0,0,0]},
+  rbc:{bpm:92,
+    lead:[67,0,70,0,74,72,70,0, 69,0,72,0,70,69,67,0, 67,0,70,0,74,77,75,74, 72,0,70,69,67,0,0,0],
+    bass:[43,0,43,0,50,0,43,0, 41,0,41,0,48,0,41,0, 39,0,39,0,46,0,39,0, 38,0,38,0,45,0,38,0]}
+};
+function setTrack(name){ if(AU.track!==name){ AU.track=name; AU.step=0; } }
+function schedule(){
+  if(!AU.ctx) return;
+  var tr=TRACKS[AU.track]||TRACKS.office, spb=60/(tr.bpm*(AU.rush?1.3:1)*(AU.speed||1))/2;
+  if(AU.next < AU.ctx.currentTime) AU.next = AU.ctx.currentTime+0.02;
+  while(AU.next < AU.ctx.currentTime+0.12){
+    var i=AU.step%tr.lead.length, t=AU.next, L=tr.lead[i], B=tr.bass[i%tr.bass.length];
+    if(L) tone('square',mtof(L),t,spb*0.9,0.045,AU.musicGain);
+    if(B) tone('triangle',mtof(B),t,spb*0.95,0.12,AU.musicGain);
+    if(i%2===0) noise(t,0.03,0.035,AU.musicGain,7000);
+    if(i%8===4) noise(t,0.09,0.07,AU.musicGain,1500);
+    AU.next+=spb; AU.step++;
+  }
+}
+function setMusic(on){
+  S.music=on;
+  if(on){ audioInit(); if(!AU.ctx){ S.music=false; return; } AU.ctx.resume(); if(!AU.timer){ AU.next=AU.ctx.currentTime+0.05; AU.timer=setInterval(schedule,25); } }
+  else if(AU.timer){ clearInterval(AU.timer); AU.timer=null; }
+  syncSoundBtns();
+}
+function soundButtons(){
+  return '<button class="tbtn mbtn" type="button">Music</button><button class="tbtn sbtn" type="button">Sound effects</button>';
+}
+function bindSound(){
+  Array.prototype.forEach.call(document.querySelectorAll('.mbtn'), function(b){ b.onclick=function(){ setMusic(!S.music); b.blur(); }; });
+  Array.prototype.forEach.call(document.querySelectorAll('.sbtn'), function(b){ b.onclick=function(){ S.sfx=!S.sfx; syncSoundBtns(); sfx('click'); b.blur(); }; });
+  syncSoundBtns();
+}
+function syncSoundBtns(){
+  Array.prototype.forEach.call(document.querySelectorAll('.mbtn'), function(b){ b.textContent = S.music?'Music: on':'Music: off'; b.classList.toggle('on',S.music); b.setAttribute('aria-pressed',S.music); });
+  Array.prototype.forEach.call(document.querySelectorAll('.sbtn'), function(b){ b.textContent = S.sfx?'Sound effects: on':'Sound effects: off'; b.classList.toggle('on',S.sfx); b.setAttribute('aria-pressed',S.sfx); });
+}
+
+/* ---------- progress ---------- */
+function isDone(id){ return !!(S.progress[id] && S.progress[id].done); }
+function unlocked(id){ var L=lvl(id); if(!L) return false; if(S.unlockAll || !L.requires) return true;
+  return L.requires.every(function(r){ return isDone(r) || (r==='starter' && S.skipTraining); }); }
+function stateOf(id){ var L=lvl(id); if(!L) return 'soon'; if(isDone(id)) return 'done'; return unlocked(id)?'open':'locked'; }
+var RANK={A:5,B:4,C:3,D:2,F:1};
+function gradeOf(a){ return a>=0.9?'A':a>=0.8?'B':a>=0.7?'C':a>=0.6?'D':'F'; }
+
+/* ---------- title ---------- */
+function titleScreen(){
+  stopTick(); setTrack('office');
+  app.innerHTML =
+  '<div class="center-screen"><div class="sign">'+
+    '<div class="sign-top">Cell Central employment office</div>'+
+    '<h1>The Nucleus Desk</h1>'+
+    '<p class="lead">You are the control center of a cell. Work orders pile up on your desk. Read each one and stamp it to the organelle that should do the job, before the inbox overflows.</p>'+
+    '<div class="hero-icons">'+['ribosome','rough','golgi','mito','lysosome','nucleus'].map(function(k){ return '<img src="'+icon(k)+'" alt="">'; }).join('')+'</div>'+
+    '<label class="namelab" for="nm">Your name for the time card</label>'+
+    '<input id="nm" maxlength="24" autocomplete="off" placeholder="First name, last initial" value="'+esc(S.name)+'"><br>'+
+    '<button class="btn big" id="clockIn" type="button">Clock in</button>'+
+    '<div class="sound-row">'+soundButtons()+'</div>'+
+  '</div><div class="credit">Mr. Ward\u2019s Science Tools</div></div>';
+  bindSound();
+  $('clockIn').onclick=function(){ S.name=$('nm').value.trim()||'New employee'; sfx('stamp'); mapScreen(); };
+  $('nm').onkeydown=function(e){ if(e.key==='Enter') $('clockIn').click(); };
+  $('nm').focus();
+}
+
+/* ---------- map ---------- */
+function trainingCard(id){
+  var L=lvl(id), st=stateOf(id), stat = st==='done' ? 'Best: '+S.progress[id].best : st==='open' ? 'Start' : 'Locked';
+  return '<button type="button" class="card '+st+'" data-id="'+id+'"><img src="'+icon(L.icon)+'" alt=""><div><div class="cname">'+L.name+'</div><div class="cdesc">'+L.blurb+'</div></div><span class="cstat">'+stat+'</span></button>';
+}
+function nodeHTML(n, comingInfo){
+  var L=lvl(n.id), st=stateOf(n.id), pos='left:'+n.x+'%;top:'+n.y+'%';
+  if(L && L.hidden && st==='locked') return '<div class="node secret '+n.side+'" style="'+pos+'"><span class="dot">?</span><span class="nl">???</span></div>';
+  var name = L ? L.name : comingInfo.name;
+  var badge = st==='done' ? S.progress[n.id].best : st==='open' ? '!' : st==='soon' ? '...' : 'X';
+  var extra = st==='soon' ? '<br><small>Coming soon</small>' : st==='locked' ? '<br><small>Locked</small>' : '';
+  return '<button type="button" class="node '+st+' '+n.side+'" data-id="'+n.id+'" style="'+pos+'"><span class="dot">'+badge+'</span><span class="nl">'+name+extra+'</span></button>';
+}
+function mapScreen(){
+  stopTick(); cur=null; AU.rush=false; setTrack('office');
+  var nodes = BODY_NODES.map(function(n){ return nodeHTML(n); }).join('') + COMING.map(function(c){ return nodeHTML(c,c); }).join('');
+  app.innerHTML =
+  '<div class="map">'+
+    '<div class="maphead"><div><h2>Welcome, '+esc(S.name)+'</h2><p>Pick your next assignment. Start with the Training Cell. After that, every cell is open. Assignments complete: '+LEVELS.filter(function(L){return isDone(L.id);}).length+' of '+LEVELS.length+'</p></div><div class="sound-row"><button class="tbtn" id="hsBtn" type="button">Top scores</button>'+soundButtons()+'</div></div>'+
+    '<div class="mapgrid">'+
+      '<div><h3 class="colhead">Start here</h3>'+trainingCard('starter')+
+        ((!isDone('starter') && !S.skipTraining) ? '<button type="button" class="btn quiet skipbtn" id="skipTrain">Skip training</button>' : '')+'<h3 class="colhead" style="margin-top:18px">Compare cells</h3>'+trainingCard('animal')+trainingCard('bacterium')+'</div>'+
+      '<div class="bodyzone"><h3 class="colhead">Body assignments</h3><div class="bodywrap"><img src="'+bodyImg()+'" alt="Pixel art map of a human body with cell locations">'+nodes+'</div></div>'+
+      '<div><h3 class="colhead">Field trip</h3>'+
+        trainingCard('plant')+
+      '</div>'+
+    '</div>'+
+    '<div class="mapmsg" id="mapmsg" aria-live="polite"></div>'+
+    '<div class="mapfoot"><span>Progress resets if the page is refreshed.</span><span><button type="button" class="linkbtn" id="rename">Change name</button> &nbsp; <button type="button" class="linkbtn" id="teach">Teacher: unlock all levels</button></span></div>'+
+  '</div>';
+  bindSound();
+  Array.prototype.forEach.call(document.querySelectorAll('[data-id]'), function(b){
+    b.onclick=function(){
+      var id=b.getAttribute('data-id'), st=stateOf(id), msg=$('mapmsg');
+      if(st==='open'||st==='done'){ sfx('click'); briefScreen(id); }
+      else if(st==='soon'){ var c=COMING.filter(function(x){return x.id===id;})[0]; msg.textContent=(c?c.name+': '+c.tag+' ':'')+'Coming soon.'; }
+      else { var L=lvl(id); msg.textContent='Locked. Finish '+L.requires.map(function(r){ return lvl(r).name; }).join(' and ')+' first.'; }
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-soon]'), function(b){ b.onclick=function(){ $('mapmsg').textContent=b.getAttribute('data-soon'); }; });
+  $('hsBtn').onclick=openScores;
+  if($('skipTrain')) $('skipTrain').onclick=function(){ S.skipTraining=true; sfx('stamp'); mapScreen(); $('mapmsg').textContent='Training skipped. Every cell is open. You can still play the Training Cell anytime.'; };
+  $('teach').onclick=function(){ S.unlockAll=true; sfx('click'); mapScreen(); $('mapmsg').textContent='All levels unlocked for testing.'; };
+  $('rename').onclick=titleScreen;
+}
+
+/* ---------- briefing ---------- */
+function guideCard(k,i){
+  var o=O(k);
+  return '<div class="gcard"><img src="'+icon(k)+'" alt=""><div><div class="gname">'+(i+1)+'. '+o.name+'</div><div class="gjob">'+o.job+'</div><div class="gtip">Clue words: '+o.tip+'</div></div></div>';
+}
+function rulesHTML(L){
+  var hasChain=L.memos.some(function(m){ return m.route.length>1; });
+  var r = L.mode==='gentle'
+    ? '<p><b>Training mode:</b> if you stamp the wrong organelle, you will see why. Then try again.</p>'
+    : '<p><b>On the job:</b> a wrong stamp costs 10 health. A missed emergency costs 15. If more than 6 orders pile up, health drains. At 0 health the cell shuts down.</p>';
+  if(hasChain) r+='<p><b>Teamwork orders:</b> some orders need several stamps in the right order. The route line on the memo shows how many.</p>';
+  r+='<p><b>Reject stamp:</b> some orders ask for a part this cell does not have, or come from a virus pretending to be real. Stamp them REJECT (or press R).</p>';
+  if(L.emergencies.length) r+='<p><b>Emergencies:</b> red memos jump to the top of the pile and have a timer.</p>';
+  if(L.spawn.rushCount) r+='<p><b>Rush hour:</b> orders arrive faster near the end of the shift.</p>';
+  r+='<p><b>Controls:</b> click a stamp or press keys 1 to '+(L.stamps.length-1)+', or R to reject. Press B for the reference book and P to pause.</p>';
+  return r;
+}
+function briefScreen(id){
+  var L=lvl(id); setTrack(L.music);
+  app.innerHTML =
+  '<div class="brief"><div class="paper wide">'+
+    '<div class="paper-head"><span>Assignment briefing</span><span>'+L.subtitle+'</span></div>'+
+    '<h2>'+L.name+'</h2><p class="role">'+L.intro+'</p>'+
+    '<div class="rules">'+rulesHTML(L)+'</div>'+
+    '<h3>Study guide: your team</h3><div class="guide">'+L.stamps.map(guideCard).join('')+'</div>'+
+    '<div class="row"><button class="btn quiet" id="back" type="button">Back to map</button><span style="display:flex;gap:12px;flex-wrap:wrap">'+(L.fixedOrder?'':'<button class="btn big danger" id="surv" type="button">Survival mode</button>')+'<button class="btn big" id="go" type="button">Start shift</button></span></div>'+
+    (L.fixedOrder?'':'<p class="small" style="text-align:right;margin:10px 0 0">Survival mode: endless orders that get faster and faster. Health penalties always on. How long can you last?</p>')+
+  '</div></div>';
+  window.scrollTo(0,0);
+  $('back').onclick=mapScreen;
+  $('go').onclick=function(){ sfx('stamp'); startLevel(id); };
+  if($('surv')) $('surv').onclick=function(){ sfx('alarm'); startSurvival(id); };
+  $('go').focus();
+}
+
+/* ---------- level engine ---------- */
+function cloneMemo(m){ return {from:m.from, re:m.re, text:m.text, route:m.route.slice(), why:m.why, final:m.final, step:0, missed:false, emergency:false}; }
+function gentle(){ return cur && cur.L.mode==='gentle' && !cur.survival; }
+function refillSurvival(){
+  var L=cur.L, batch=shuffle(L.memos.concat(L.impossible, L.viruses)).map(cloneMemo);
+  batch.forEach(function(m){
+    if(L.emergencies.length && Math.random()<0.12){ var e=cloneMemo(L.emergencies[Math.floor(Math.random()*L.emergencies.length)]); e.emergency=true; cur.queue.push(e); }
+    cur.queue.push(m);
+  });
+  cur.queue.forEach(function(m){ if(!m.num){ cur.made++; m.num=cur.made; } });
+}
+function startSurvival(id){
+  var L=lvl(id);
+  cur={L:L, survival:true, queue:[], made:0, spawned:0, total:0, inbox:[], memo:null, locked:false, paused:false, health:100, score:0, streak:0, best:0,
+       correct:0, processed:0, mistakes:[], spawnT:0, clock:0, rush:false, ended:false, ending:false};
+  refillSurvival();
+  AU.rush=false; AU.speed=1; setTrack(L.music);
+  deskScreen();
+  spawnOne(); spawnOne(); cur.spawnT=nextInterval();
+  startTick();
+}
+function startLevel(id){
+  var L=lvl(id), pool;
+  if(L.fixedOrder) pool=L.memos.slice();
+  else if(L.chainsLate) pool=shuffle(L.memos.filter(function(m){return m.route.length===1;})).concat(shuffle(L.memos.filter(function(m){return m.route.length>1;})));
+  else pool=shuffle(L.memos);
+  var q=pool.map(cloneMemo);
+  if(L.emergencies.length){
+    var n=L.mode==='gentle'?2:3;
+    shuffle(L.emergencies).slice(0,n).forEach(function(e){
+      var c=cloneMemo(e); c.emergency=true;
+      var pos=5+Math.floor(Math.random()*Math.max(1,q.length-11));
+      q.splice(pos,0,c);
+    });
+  }
+  var rj=shuffle(L.viruses).slice(0,1).concat(shuffle(L.impossible).slice(0,2+Math.floor(Math.random()*2)));
+  rj.forEach(function(r){
+    var c=cloneMemo(r), hasFinal=q.length&&q[q.length-1].final;
+    var lo=L.fixedOrder?1:3, hi=hasFinal?q.length-1:q.length;
+    q.splice(lo+Math.floor(Math.random()*(hi-lo+1)),0,c);
+  });
+  q.forEach(function(m,i){ m.num=i+1; });
+  cur={L:L, queue:q, total:q.length, inbox:[], memo:null, locked:false, paused:false, health:100, score:0, streak:0, best:0,
+       correct:0, processed:0, mistakes:[], spawnT:0, clock:0, rush:false, ended:false, ending:false};
+  AU.rush=false; AU.speed=1; setTrack(L.music);
+  deskScreen();
+  spawnOne(); spawnOne(); cur.spawnT=nextInterval();
+  startTick();
+}
+function nextInterval(){
+  if(cur.survival) return Math.max(0.35, 5/(1+cur.clock/30));
+  var sp=cur.L.spawn, left=cur.queue.length;
+  if(left<=sp.rushCount) return sp.rush;
+  var done=cur.total-left, frac=Math.min(1, done/Math.max(1,cur.total-sp.rushCount));
+  return sp.start+(sp.min-sp.start)*frac;
+}
+function spawnOne(){
+  if(cur.survival && cur.queue.length<3) refillSurvival();
+  if(!cur.queue.length) return;
+  var m=cur.queue.shift();
+  m.timeMax = m.emergency ? (cur.survival?12:gentle()?30:15) : 0; m.timeLeft=m.timeMax;
+  if(cur.survival){
+    cur.spawned++;
+    AU.speed=Math.min(1.6, 1+cur.spawned*0.012);
+    if(cur.spawned%10===0) banner('Faster!');
+  }
+  else if(cur.L.spawn.rushCount && cur.queue.length<cur.L.spawn.rushCount && !cur.rush){ cur.rush=true; AU.rush=true; banner('Rush hour!'); }
+  if(m.emergency){
+    sfx('alarm'); banner('Emergency!');
+    if(!cur.locked){ if(cur.memo) cur.inbox.unshift(cur.memo); cur.memo=m; renderMemo(true); }
+    else cur.inbox.unshift(m);
+  } else {
+    cur.inbox.push(m); sfx('paper');
+    if(!cur.memo && !cur.locked) nextMemo();
+  }
+  renderPile(); updateStats();
+}
+function nextMemo(){
+  cur.memo = cur.inbox.length ? cur.inbox.shift() : null;
+  renderMemo(true); renderPile(); checkEnd();
+}
+function checkEnd(){
+  if(!cur || cur.ended || cur.ending) return;
+  if(!cur.queue.length && !cur.inbox.length && !cur.memo){
+    cur.ending=true; var c=cur;
+    setTimeout(function(){ if(c===cur) endLevel(false); }, 700);
+  }
+}
+function startTick(){ stopTick(); lastT=performance.now(); tickId=setInterval(tick,100); }
+function stopTick(){ if(tickId){ clearInterval(tickId); tickId=null; } }
+function tick(){
+  var now=performance.now(), dt=Math.min(0.5,(now-lastT)/1000); lastT=now;
+  if(!cur || cur.ended || cur.paused) return;
+  cur.clock+=dt;
+  if(cur.queue.length){
+    cur.spawnT-=dt;
+    if(cur.spawnT<=0){
+      if(gentle() && cur.inbox.length>=LIMIT) cur.spawnT=0.5;
+      else { spawnOne(); cur.spawnT=nextInterval(); }
+    }
+  }
+  if(cur.memo && cur.memo.emergency && !cur.locked){
+    cur.memo.timeLeft-=dt; updateTimer();
+    if(cur.memo.timeLeft<=0) emergencyExpired();
+  }
+  if(!gentle() && cur.inbox.length>LIMIT) hurt((cur.survival?3:2)*dt);
+  updateClock();
+}
+function hurt(n){
+  cur.health=Math.max(0,cur.health-n); updateHealth();
+  if(cur.health<=0 && !cur.ended) endLevel(true);
+}
+function stamp(key){
+  if(!cur || cur.ended || cur.paused || cur.locked || !cur.memo) return;
+  var m=cur.memo, exp=m.route[m.step];
+  pressAnim(key);
+  if(key===exp){
+    m.step++; fillSlots();
+    if(m.step>=m.route.length){ sfx('stamp'); complete(true); } else sfx('step');
+  } else {
+    sfx('bad'); shake(); cur.streak=0;
+    if(gentle()){
+      if(!m.missed){ m.missed=true; cur.mistakes.push(exp); }
+      cur.paused=true;
+      showExplain({title:'Not quite', sent:key, expected:exp, memo:m}, function(){ if(cur){ cur.paused=false; lastT=performance.now(); } });
+    } else {
+      m.missed=true; cur.mistakes.push(exp);
+      toast(key==='reject' ? 'This cell can do that job, so it should not be rejected. It needed '+O(exp).name+'. '+m.why
+          : exp==='reject' ? 'This order should have been rejected. '+m.why
+          : 'Wrong: '+O(key).name+'. This needed '+O(exp).name+'. '+m.why);
+      hurt(10);
+      if(!cur.ended) complete(false);
+    }
+  }
+  updateStats();
+}
+function emergencyExpired(){
+  var m=cur.memo, exp=m.route[m.step];
+  m.missed=true; cur.mistakes.push(exp); cur.streak=0; sfx('bad');
+  if(gentle()){
+    cur.paused=true; cur.locked=true;
+    showExplain({title:'Too slow!', sent:null, expected:exp, memo:m}, function(){ if(cur){ cur.paused=false; lastT=performance.now(); complete(false); } });
+  } else {
+    toast('Emergency missed! It needed '+O(exp).name+'. '+m.why);
+    hurt(15);
+    if(!cur.ended) complete(false);
+  }
+}
+function complete(ok){
+  if(!cur || cur.ended) return;
+  var c=cur, m=cur.memo; if(!m) return;
+  c.locked=true; c.processed++;
+  var good = ok && !m.missed;
+  if(good){ c.correct++; c.streak++; c.best=Math.max(c.best,c.streak); c.score += (m.emergency?200:100) + Math.min(c.streak-1,10)*10; setTimeout(function(){ sfx('good'); },80); }
+  var refused = m.route[0]==='reject';
+  showMark(good?(refused?'Denied':'Approved'):(ok?'Done':'Mistake'), good?(refused?'bad':'ok'):'meh', m, ok);
+  updateStats();
+  setTimeout(function(){
+    if(c!==cur || c.ended) return;
+    var el=$('memo'); if(el) el.classList.add('out');
+    setTimeout(function(){
+      if(c!==cur || c.ended) return;
+      c.locked=false;
+      if(m.final && ok){ endLevel(false); return; }
+      nextMemo();
+    },300);
+  },650);
+}
+function endLevel(shutdown){
+  if(!cur || cur.ended) return;
+  cur.ended=true; stopTick(); AU.rush=false; AU.speed=1;
+  modalCb=null; var md=$('modal'); if(md) md.remove(); closeBook();
+  if(cur.survival){
+    var se={name:S.name, time:cur.clock, orders:cur.correct, when:Date.now()}, sl=((S.surv||(S.surv={}))[cur.L.id]||[]).concat([se]);
+    sl.sort(function(a,b){ return b.time-a.time || a.when-b.when; });
+    S.surv[cur.L.id]=sl.slice(0,3);
+    var rk=S.surv[cur.L.id].indexOf(se);
+    sfx(rk===0?'win':'bad'); survivalReport(cur, se, rk); return;
+  }
+  var acc=cur.total?cur.correct/cur.total:0, g=gradeOf(acc), id=cur.L.id;
+  var p=S.progress[id]||{};
+  if(!shutdown){ p.done=true; if(!p.best || RANK[g]>RANK[p.best]) p.best=g; }
+  S.progress[id]=p;
+  var res={shutdown:shutdown, acc:acc, grade:g, c:cur, rankNew:-1, entry:null};
+  if(!shutdown){
+    var entry={name:S.name, score:cur.score, grade:g, when:Date.now()}, list=(S.scores[id]||[]).concat([entry]);
+    list.sort(function(a,b){ return b.score-a.score || a.when-b.when; });
+    S.scores[id]=list.slice(0,3); res.rankNew=S.scores[id].indexOf(entry); res.entry=entry;
+  }
+  if(id==='rbc' && !shutdown){ sfx('fired'); firedScreen(res); }
+  else { if(!shutdown && (RANK[g]>=4 || res.rankNew===0)) sfx('win'); else if(shutdown) sfx('bad'); reportScreen(res); }
+}
+
+/* ---------- desk rendering ---------- */
+function deskScreen(){
+  var L=cur.L;
+  app.innerHTML =
+  '<div class="desk">'+
+   '<header class="topbar">'+
+     '<div class="tb-left"><span class="tb-cell">'+L.name+'</span><span class="modetag '+(cur.survival?'penalty':L.mode)+'">'+(cur.survival?'Survival':L.mode==='gentle'?'Training':'On the job')+'</span></div>'+
+     '<div class="tb-mid"><span id="orders"></span><span id="score"></span><span id="streak"></span></div>'+
+     '<div class="tb-right"><button class="tbtn" id="bookBtn" type="button">Book (B)</button><button class="tbtn" id="pauseBtn" type="button">Pause (P)</button>'+soundButtons()+'<button class="tbtn" id="quitBtn" type="button">Quit</button></div>'+
+   '</header>'+
+   '<main class="floor">'+
+     '<section class="inbox" aria-label="Inbox"><h3>Inbox</h3><div class="pile" id="pile"></div><div id="pilecount" class="pilecount"></div></section>'+
+     '<section class="center"><div id="banner" class="banner"></div><div id="under" class="under" aria-hidden="true"></div><div id="memoSlot" class="memoSlot" aria-live="polite"></div><div id="toast" class="toast" role="status"></div>'+
+       '<div id="pauseOv" class="pauseov">Paused<small>Press P or click Pause to keep working</small></div></section>'+
+     '<section class="side">'+
+       '<div class="panel"><h3>Cell health</h3><div class="hbar"><div id="hfill"></div></div><div id="hnum" class="hnum"></div></div>'+
+       '<div class="panel"><h3>'+(cur.survival?'Time survived':'Shift clock')+'</h3><div id="clock" class="bignum">0:00</div></div>'+
+       '<div class="panel tip">'+(cur.survival?'Survival: orders never stop and keep getting faster. Wrong stamp -10. Missed emergency -15. A big pile drains health fast.':L.mode==='gentle'?'Training: mistakes are explained, then you try again.':'On the job: wrong stamp -10 health. Missed emergency -15. More than 6 in the inbox drains health.')+'</div>'+
+     '</section>'+
+   '</main>'+
+   '<footer class="tray" id="tray" style="grid-template-columns:repeat('+L.stamps.length+',1fr)">'+
+     L.stamps.map(function(k,i){ var o=O(k); return '<button type="button" class="stamp'+(k==='reject'?' rejectst':'')+'" data-k="'+k+'" id="st-'+k+'" aria-label="Stamp '+o.name+'"><span class="key">'+(k==='reject'?'R':(i+1))+'</span><span class="handle" style="background:'+o.colors[1]+'"></span><img src="'+icon(k)+'" alt=""><span class="sname">'+o.short+'</span></button>'; }).join('')+
+   '</footer>'+
+  '</div>';
+  bindSound();
+  Array.prototype.forEach.call(document.querySelectorAll('.stamp'), function(b){ b.onclick=function(){ stamp(b.getAttribute('data-k')); b.blur(); }; });
+  $('bookBtn').onclick=function(){ openBook(); };
+  $('pauseBtn').onclick=function(){ togglePause(); };
+  $('quitBtn').onclick=function(){
+    var was=cur.paused; cur.paused=true;
+    if(confirm('Leave this shift? Your progress on this cell will be lost.')){ cur.ended=true; stopTick(); mapScreen(); }
+    else { cur.paused=was; lastT=performance.now(); }
+  };
+  updateStats(); updateHealth(); renderPile(); renderMemo(false); updateClock();
+}
+function renderMemo(anim){
+  var slot=$('memoSlot'); if(!slot||!cur) return;
+  var m=cur.memo;
+  if(!m){ slot.innerHTML='<div class="waiting">'+((cur.queue.length||cur.inbox.length)?'Waiting for the next order...':'All orders handled.<br>Wrapping up the shift...')+'</div>'; return; }
+  slot.innerHTML=
+  '<div class="memo '+(m.emergency?'emergency ':'')+(anim?'in':'')+'" id="memo">'+
+    '<div class="memo-head"><span>Work order #'+String(m.num).padStart(2,'0')+'</span>'+(m.emergency?'<span class="alarm">EMERGENCY</span>':'<span>'+cur.L.name+'</span>')+'</div>'+
+    '<div class="mline"><b>FROM</b>'+esc(m.from)+'</div><div class="mline"><b>RE</b>'+esc(m.re)+'</div>'+
+    '<p class="mbody">'+esc(m.text)+'</p>'+
+    (m.emergency?'<div class="tbar" aria-hidden="true"><div id="tfill"></div></div>':'')+
+    '<div class="route"><b>ROUTE</b><span id="slots" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"></span></div>'+
+    '<div class="mark" id="mark"></div>'+
+  '</div>';
+  fillSlots(); if(m.emergency) updateTimer();
+}
+function fillSlots(){
+  var m=cur&&cur.memo, el=$('slots'); if(!el||!m) return;
+  el.innerHTML=m.route.map(function(k,i){
+    return i<m.step ? '<span class="slot filled">'+O(k).short+'</span>' : '<span class="slot'+(i===m.step?' next':'')+'">?</span>';
+  }).join('<span class="arrow">&#9656;</span>');
+}
+function showMark(text,cls,m,ok){
+  var el=$('mark'); if(!el) return;
+  el.innerHTML=text+(ok&&m.route[0]==='reject'?'<small>Order refused</small>':ok?'<small>Sent to '+m.route.map(function(k){return O(k).short;}).join(' > ')+'</small>':'');
+  el.className='mark show '+cls;
+}
+function renderPile(){
+  var p=$('pile'); if(!p||!cur) return;
+  var n=cur.inbox.length, h='';
+  for(var i=0;i<Math.min(n,12);i++){
+    var item=cur.inbox[n-1-i]; // bottom of pile = last in line
+    h+='<div class="sheet'+(item&&item.emergency?' em':'')+'" style="bottom:'+(i*14)+'px;transform:rotate('+(((i*37)%7)-3)+'deg)"></div>';
+  }
+  h+='<div class="limit" style="bottom:'+(LIMIT*14+42)+'px"><span>Overflow</span></div>';
+  p.innerHTML=h;
+  var c=$('pilecount'); c.textContent=n+' waiting'; c.classList.toggle('over', n>LIMIT);
+  // messy pile under the main memo: the more orders, the wider they spread
+  var u=$('under'); if(!u) return;
+  var shown=Math.min(n,14), spread=1+Math.max(0,n-3)*0.35, uh='';
+  for(var j=shown-1;j>=0;j--){
+    var it=cur.inbox[j];
+    var dx=(((j*53+11)%41)-20)*spread, dy=(((j*29+7)%31)-15)*spread*0.7, rot=(((j*17+5)%13)-6)*Math.min(2,0.6+spread*0.3);
+    uh+='<div class="usheet'+(it&&it.emergency?' em':'')+'" style="transform:translate(-50%,-50%) translate('+dx.toFixed(0)+'px,'+dy.toFixed(0)+'px) rotate('+rot.toFixed(1)+'deg)">'+
+        '<span class="uhead">Work order #'+String(it.num).padStart(2,'0')+'</span></div>';
+  }
+  u.innerHTML=uh;
+}
+function updateStats(){
+  if(!cur||!$('orders')) return;
+  $('orders').textContent = cur.survival ? 'Orders '+cur.processed+'  Pace '+nextInterval().toFixed(1)+'s' : 'Orders '+cur.processed+'/'+cur.total;
+  $('score').textContent='Score '+cur.score;
+  $('streak').textContent=cur.streak>=3?'Streak x'+cur.streak:'';
+}
+function updateHealth(){
+  var f=$('hfill'); if(!f) return;
+  var h=Math.round(cur.health);
+  f.style.width=h+'%'; f.style.background = h>60?'var(--green)':h>30?'var(--brass)':'var(--red)';
+  $('hnum').textContent=h+' / 100';
+}
+function updateClock(){
+  var el=$('clock'); if(!el) return;
+  var s=Math.floor(cur.clock); el.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+}
+function updateTimer(){
+  var f=$('tfill'); if(f&&cur.memo&&cur.memo.timeMax) f.style.width=Math.max(0,100*cur.memo.timeLeft/cur.memo.timeMax)+'%';
+}
+function banner(t){
+  var b=$('banner'); if(!b) return;
+  b.textContent=t; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  clearTimeout(bannerT); bannerT=setTimeout(function(){ b.classList.remove('show'); },2200);
+}
+function toast(t){
+  var el=$('toast'); if(!el) return;
+  el.textContent=t; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove('show'); },5000);
+}
+function pressAnim(k){ var b=$('st-'+k); if(!b) return; b.classList.add('press'); setTimeout(function(){ b.classList.remove('press'); },150); }
+function shake(){ var el=$('memo'); if(!el) return; el.classList.remove('shake','in'); void el.offsetWidth; el.classList.add('shake'); }
+function togglePause(){
+  if(!cur||cur.ended||$('modal')) return;
+  cur.paused=!cur.paused; lastT=performance.now();
+  $('pauseOv').classList.toggle('on',cur.paused);
+  $('pauseBtn').textContent=cur.paused?'Resume (P)':'Pause (P)';
+}
+
+/* ---------- modals ---------- */
+function showExplain(o,cb){
+  var e=O(o.expected), stepTxt = o.memo.route.length>1 ? ' (step '+(o.memo.step+1)+' of '+o.memo.route.length+')' : '';
+  document.body.insertAdjacentHTML('beforeend',
+  '<div class="modal-back" id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="modal paper">'+
+    '<div class="mhead bad" id="mtitle">'+o.title+'</div>'+
+    (o.sent==='reject' ? '<p class="why">You rejected it, but this cell <b>can</b> do this job.</p>'
+     : o.expected==='reject' ? '<p class="why">You sent it to <b>'+O(o.sent).name+'</b>, but this order should be rejected.</p>'
+     : o.sent ? '<p class="why">You sent it to <b>'+O(o.sent).name+'</b>.</p>' : '<p class="why">Emergencies have a timer. Read fast and stamp fast.</p>')+
+    '<div class="answer"><img src="'+icon(o.expected)+'" alt=""><div><div class="small">This job needed'+stepTxt+':</div><div class="aname">'+e.name+'</div></div></div>'+
+    '<p class="why">'+o.memo.why+'</p>'+
+    '<div class="jobbox"><b>'+e.name+':</b> '+e.job+'</div>'+
+    '<button class="btn big" id="mok" type="button">'+(o.sent?'Got it, try again':'Got it')+'</button>'+
+  '</div></div>');
+  modalCb=cb; $('mok').onclick=closeModal; $('mok').focus();
+}
+function closeModal(){
+  var m=$('modal'); if(!m) return;
+  m.remove(); var cb=modalCb; modalCb=null; if(cb) cb();
+}
+function openBook(){
+  if($('book')) return;
+  var keys = cur ? cur.L.stamps : Object.keys(ORGANELLES);
+  document.body.insertAdjacentHTML('beforeend',
+  '<div class="modal-back" id="book" role="dialog" aria-modal="true" aria-labelledby="btitle"><div class="modal paper bookm">'+
+    '<div class="mhead" id="btitle">Reference book</div>'+
+    '<p class="small">The shift clock keeps running while the book is open.</p>'+
+    '<div class="guide">'+keys.map(guideCard).join('')+'</div>'+
+    '<div class="row"><span></span><button class="btn" id="bclose" type="button">Close book (B)</button></div>'+
+  '</div></div>');
+  $('bclose').onclick=closeBook; $('bclose').focus();
+}
+function closeBook(){ var b=$('book'); if(b) b.remove(); }
+
+/* ---------- report ---------- */
+function gradeComment(g,sd){
+  if(sd) return 'The cell shut down before the shift ended.';
+  return {A:'Outstanding work. The cell ran like clockwork.', B:'Strong shift. A few orders went to the wrong place.', C:'The cell survived, but some organelles were confused.', D:'Rough shift. Review the missed topics and try again.', F:'The cell struggled. Use the study guide and try again.'}[g];
+}
+function fmtTime(t){ var s=Math.floor(t); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function survTable(id, entry){
+  var list=(S.surv&&S.surv[id])||[];
+  if(!list.length) return '<p class="small">No survival runs yet.</p>';
+  return '<ol class="hs">'+list.map(function(e,i){
+    return '<li class="'+(e===entry?'me':'')+'"><span class="hrank">#'+(i+1)+'</span><span class="hname">'+esc(e.name)+'</span><span class="hgrade"></span><span class="hscore">'+fmtTime(e.time)+'</span></li>';
+  }).join('')+'</ol>';
+}
+function survivalReport(c, entry, rank){
+  var tally={}; c.mistakes.forEach(function(k){ tally[k]=(tally[k]||0)+1; });
+  var keys=Object.keys(tally).sort(function(a,b){ return tally[b]-tally[a]; }).slice(0,4);
+  app.innerHTML =
+  '<div class="brief"><div class="paper review">'+
+    '<div class="paper-head"><span>Survival report</span><span>'+new Date().toLocaleDateString()+'</span></div>'+
+    '<div class="gradestamp g-F" style="font-size:20px;width:130px">'+fmtTime(c.clock)+'</div>'+
+    '<h2>'+esc(S.name)+'</h2>'+
+    '<p class="why" style="margin:0">Survival mode: <b>'+c.L.name+'</b></p>'+
+    '<div class="shut"><b>The pile won</b>You kept the cell alive for '+fmtTime(c.clock)+'. Orders were arriving every '+nextInterval().toFixed(1)+' seconds at the end.</div>'+
+    '<div class="stats">'+
+      '<div class="stat">Time survived<div class="v">'+fmtTime(c.clock)+'</div></div>'+
+      '<div class="stat">Orders correct<div class="v">'+c.correct+'</div></div>'+
+      '<div class="stat">Best streak<div class="v">'+c.best+'</div></div>'+
+    '</div>'+
+    '<h3>Longest survival: '+c.L.name+'</h3>'+
+    (rank===0 ? '<p class="newhs">New record! #1</p>' : rank>0 ? '<p class="newhs">You made the board! #'+(rank+1)+'</p>' : '')+
+    survTable(c.L.id, entry)+
+    (keys.length?'<h3>What tripped you up</h3><div class="missed">'+keys.map(function(k){ var o=O(k); return '<div class="mitem"><img src="'+icon(k)+'" alt=""><div><b>'+o.name+'</b> (missed '+tally[k]+')<br>'+o.job+'</div></div>'; }).join('')+'</div>':'')+
+    '<div class="row"><button class="btn quiet" id="tomap" type="button">Back to map</button><button class="btn big" id="again" type="button">Try to beat it</button></div>'+
+  '</div></div>';
+  window.scrollTo(0,0);
+  $('again').onclick=function(){ sfx('stamp'); startSurvival(c.L.id); };
+  $('tomap').onclick=mapScreen; $('again').focus();
+}
+function scoreTable(id, entry){
+  var list=S.scores[id]||[];
+  if(!list.length) return '<p class="small">No finished shifts yet.</p>';
+  return '<ol class="hs">'+list.map(function(e,i){
+    return '<li class="'+(e===entry?'me':'')+'"><span class="hrank">#'+(i+1)+'</span><span class="hname">'+esc(e.name)+'</span><span class="hgrade">'+e.grade+'</span><span class="hscore">'+e.score+'</span></li>';
+  }).join('')+'</ol>';
+}
+function openScores(){
+  if($('book')) return;
+  var shown=LEVELS.filter(function(L){ return !L.hidden || unlocked(L.id) || (S.scores[L.id]||[]).length; });
+  document.body.insertAdjacentHTML('beforeend',
+  '<div class="modal-back" id="book" role="dialog" aria-modal="true" aria-labelledby="htitle"><div class="modal paper bookm">'+
+    '<div class="mhead" id="htitle">Top 3 boards</div>'+
+    '<p class="small">Shift scores count finished shifts only. Survival times count how long the cell lasted. Boards reset when the page is refreshed.</p>'+
+    '<div class="guide">'+shown.map(function(L){ return '<div class="gcard" style="display:block"><div class="gname">'+L.name+'</div><div class="small">Shift scores</div>'+scoreTable(L.id)+(L.fixedOrder?'':'<div class="small" style="margin-top:8px">Survival times</div>'+survTable(L.id))+'</div>'; }).join('')+'</div>'+
+    '<div class="row"><span></span><button class="btn" id="bclose" type="button">Close</button></div>'+
+  '</div></div>');
+  $('bclose').onclick=closeBook; $('bclose').focus();
+}
+function reportScreen(r){
+  var c=r.c, tally={};
+  c.mistakes.forEach(function(k){ tally[k]=(tally[k]||0)+1; });
+  var keys=Object.keys(tally).sort(function(a,b){ return tally[b]-tally[a]; });
+  var missed = keys.length
+    ? '<div class="missed">'+keys.map(function(k){ var o=O(k); return '<div class="mitem"><img src="'+icon(k)+'" alt=""><div><b>'+o.name+'</b> (missed '+tally[k]+')<br>'+o.job+'</div></div>'; }).join('')+'</div>'
+    : '<p class="why">No missed topics. Every order went to the right place.</p>';
+  var s=Math.floor(c.clock);
+  app.innerHTML =
+  '<div class="brief"><div class="paper review">'+
+    '<div class="paper-head"><span>Performance review</span><span>'+new Date().toLocaleDateString()+'</span></div>'+
+    '<div class="gradestamp g-'+r.grade+'" aria-label="Grade '+r.grade+'">'+r.grade+'</div>'+
+    '<h2>'+esc(S.name)+'</h2>'+
+    '<p class="why" style="margin:0">Assignment: <b>'+c.L.name+'</b></p>'+
+    (r.shutdown?'<div class="shut"><b>Cell shut down</b>Too many mistakes or a backed-up inbox. A cell cannot survive when its organelles stop working together.</div>':'')+
+    '<div class="stats">'+
+      '<div class="stat">Correct on first try<div class="v">'+c.correct+' / '+c.total+'</div></div>'+
+      '<div class="stat">Accuracy<div class="v">'+Math.round(r.acc*100)+'%</div></div>'+
+      '<div class="stat">Score<div class="v">'+c.score+'</div></div>'+
+      '<div class="stat">Best streak<div class="v">'+c.best+'</div></div>'+
+      '<div class="stat">Cell health<div class="v">'+Math.round(c.health)+'</div></div>'+
+      '<div class="stat">Shift time<div class="v">'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+'</div></div>'+
+    '</div>'+
+    '<p class="why">'+gradeComment(r.grade,r.shutdown)+'</p>'+
+    '<h3>Top 3 scores: '+c.L.name+'</h3>'+
+    (r.rankNew===0 ? '<p class="newhs">New high score! #1</p>' : r.rankNew>0 ? '<p class="newhs">You made the board! #'+(r.rankNew+1)+'</p>' : '')+
+    (r.shutdown ? '<p class="small">Shut-down shifts do not count for the board.</p>' : '')+
+    scoreTable(c.L.id, r.entry)+
+    '<h3>Topics to review</h3>'+missed+
+    '<p class="small" style="margin-top:14px">Show this screen to your teacher.</p>'+
+    '<div class="row"><button class="btn quiet" id="again" type="button">Try this cell again</button><button class="btn big" id="tomap" type="button">Back to map</button></div>'+
+  '</div></div>';
+  window.scrollTo(0,0);
+  $('again').onclick=function(){ briefScreen(c.L.id); };
+  $('tomap').onclick=mapScreen;
+  $('tomap').focus();
+}
+function firedScreen(r){
+  app.innerHTML =
+  '<div class="center-screen"><div class="sign fired">'+
+    '<div class="sign-top">Notice from bone marrow HQ</div>'+
+    '<h1>You\u2019re fired!</h1>'+
+    '<p class="lead">...and that is exactly what is supposed to happen. Mature red blood cells have <b>no nucleus</b> and <b>no mitochondria</b>. That leaves more room for hemoglobin and makes the cell flexible enough to squeeze through tiny blood vessels.</p>'+
+    '<p class="lead">The catch: without a nucleus, a red blood cell cannot make new proteins or repair itself, so it only lasts about 120 days. Your body makes millions of new ones every second to keep up.</p>'+
+    '<p class="lead"><b>Think about it:</b> why can\u2019t a red blood cell divide to make more of itself?</p>'+
+    '<button class="btn big" id="toreview" type="button">See my performance review</button>'+
+  '</div></div>';
+  $('toreview').onclick=function(){ reportScreen(r); };
+  $('toreview').focus();
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown', function(e){
+  if(e.target && e.target.tagName==='INPUT') return;
+  if($('modal')){ if(e.key==='Enter'||e.key==='Escape'||e.key===' '){ e.preventDefault(); closeModal(); } return; }
+  if($('book')){ if(e.key==='Escape'||e.key==='b'||e.key==='B'){ e.preventDefault(); closeBook(); } return; }
+  if(!cur || cur.ended || !$('tray')) return;
+  var n=parseInt(e.key,10);
+  if(n>=1 && n<=cur.L.stamps.length){ e.preventDefault(); stamp(cur.L.stamps[n-1]); }
+  else if(e.key==='r'||e.key==='R') stamp('reject');
+  else if(e.key==='p'||e.key==='P') togglePause();
+  else if(e.key==='b'||e.key==='B') openBook();
+});
+
+titleScreen();
+})();
+</script>
+</body>
+</html>
